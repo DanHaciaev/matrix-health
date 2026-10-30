@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Магазин: пептиды, БАДы, таблетки
 
-## Getting Started
+Next.js 16 (App Router, Cache Components) + TypeScript + Tailwind CSS 4 + Supabase.
+Без отдельных CSS-файлов и скриптов: вся вёрстка — классы Tailwind в компонентах.
 
-First, run the development server:
+## Быстрый старт
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте http://localhost:3000. Все данные (товары, категории, сертификаты, контакты) берутся **только из
+Supabase** — в коде их нет. Пока база не подключена, сверху сайта висит красная плашка
+«База данных не подключена», а каталог пуст.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Подключение Supabase (≈10 минут)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Создайте проект на [supabase.com](https://supabase.com).
+2. **SQL Editor → New query** → вставьте содержимое `supabase/schema.sql` → **Run**.
+   Создадутся таблицы, права доступа (RLS), функция оформления заказа и хранилище `media` для фото и PDF.
+3. *(Необязательно)* Ещё один запрос с `supabase/seed.sql` — заполнит магазин стартовыми товарами
+   (13 позиций, 3 категории, 10 сертификатов). Если каталог на сайте показывает «Ацетил-тетрапептид-5»,
+   «Омега-3, концентрат 70%» и т. д. — данные пришли из базы.
+4. Скопируйте `.env.example` в `.env.local` и вставьте значения из
+   **Project Settings → API** (URL и publishable/anon key).
+5. Создайте администратора:
+   - **Authentication → Users → Add user → Create new user**, укажите email и пароль, включите *Auto Confirm User*;
+   - в SQL Editor выполните (подставьте свой email):
+     ```sql
+     insert into public.admins (user_id)
+     select id from auth.users where email = 'you@example.com';
+     ```
+6. Перезапустите `npm run dev` и войдите на http://localhost:3000/admin.
 
-## Learn More
+> Ключ `service_role` **не нужен** и в проект не добавляется. Права проверяет сама база:
+> покупатели видят только опубликованные товары, а менять данные может только пользователь из таблицы `admins`.
 
-To learn more about Next.js, take a look at the following resources:
+## Страницы
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Адрес | Что это |
+|---|---|
+| `/` | Главная: поиск по номеру партии, категории, популярное, FAQ |
+| `/catalog` | Каталог: категории, фильтры (форма, назначение, цена, наличие), сортировка, поиск `?q=` |
+| `/product/[slug]` | Товар: фото, дозировки, количество, состав, применение, документы |
+| `/certificates` | Реестр сертификатов с поиском по LOT |
+| `/cart`, `/checkout`, `/checkout/success` | Корзина и оформление заказа |
+| `/delivery`, `/contacts`, `/about`, `/privacy` | Информационные страницы |
+| `/admin` | Админка |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Админка
 
-## Deploy on Vercel
+- **Обзор** — новые заказы, выручка за 30 дней, товары, которые заканчиваются.
+- **Заказы** — фильтр по статусу, поиск по номеру/имени/телефону, смена статуса прямо из списка,
+  карточка заказа с заметкой менеджера.
+- **Товары** — создание и редактирование: фото (загрузка, порядок, главное фото), дозировки с отдельной
+  ценой и остатком, состав, характеристики, метки «Новинка»/«Популярное», публикация в один клик.
+- **Сертификаты** — загрузка PDF, привязка к товару и партии.
+- **Категории** и **Настройки** (название магазина, телефон, Telegram, адрес, стоимость доставки).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Изменения из админки появляются на сайте сразу (кеш сбрасывается через `updateTag`).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Как устроено
+
+```
+src/
+  app/(shop)/        страницы магазина (общие шапка и подвал)
+  app/admin/         админка: login + (panel) с боковым меню
+  components/        UI магазина; components/admin — формы админки
+  lib/data.ts        чтение каталога из Supabase с кешированием ('use cache')
+  lib/catalog.ts     фильтры, сортировка, пагинация
+  lib/cart.ts        корзина в localStorage
+  lib/admin/         проверка прав и server actions админки
+  proxy.ts           обновление сессии и защита /admin
+supabase/
+  schema.sql         таблицы, RLS, place_order(), хранилище
+  seed.sql           стартовое наполнение (необязательно)
+```
+
+- Цены в заказе считает база (функция `place_order`), а не браузер — подделать сумму нельзя.
+- Остатки списываются автоматически при оформлении заказа.
+- Цвета и шрифты заданы в `src/app/globals.css` (`@theme`): `bg-brand`, `text-ink`, `bg-paper` и т. д.
+
+## Деплой (Vercel)
+
+Импортируйте репозиторий, добавьте те же две переменные из `.env.local` в **Settings → Environment
+Variables** и задеплойте. Если меняете переменные — сделайте Redeploy: адрес Supabase используется при сборке
+(разрешённые адреса картинок).
+
+## Что поправить перед запуском
+
+- Тексты на страницах «О магазине», «Доставка», «Политика конфиденциальности» — черновики, отредактируйте под себя.
+- Контакты, название и стоимость доставки меняются в **Админка → Настройки**.
+- Стартовые товары из `seed.sql` удаляются в админке (или просто не запускайте этот файл).
+- Изменения через админку видны на сайте сразу. Если править таблицы напрямую в Supabase, сайт обновится
+  примерно через минуту, или сразу — кнопкой «Обновить сайт» в Админка → Настройки.
