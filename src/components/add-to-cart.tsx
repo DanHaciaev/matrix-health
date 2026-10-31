@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useRef, useState } from 'react'
+import { useI18n } from '@/i18n/client'
 import { cart, type CartLine } from '@/lib/cart'
 import { IconCheck, IconPlus } from './icons'
 
@@ -21,6 +22,7 @@ function useAdded() {
 /** Маленькая кнопка «+» на карточке товара */
 export function QuickAdd({ line, name }: { line: LineInput; name: string }) {
   const [added, flash] = useAdded()
+  const { t, fmt } = useI18n()
 
   return (
     <button
@@ -29,7 +31,7 @@ export function QuickAdd({ line, name }: { line: LineInput; name: string }) {
         cart.add(line)
         flash()
       }}
-      aria-label={`Добавить «${name}» в корзину`}
+      aria-label={fmt(t.product.addAria, { name })}
       className={`flex size-11 shrink-0 items-center justify-center rounded-full transition-all ${
         added ? 'bg-brand-soft text-brand-dark' : 'bg-brand text-white hover:scale-105 hover:bg-brand-dark'
       }`}
@@ -39,9 +41,10 @@ export function QuickAdd({ line, name }: { line: LineInput; name: string }) {
   )
 }
 
-/** Кнопки «В корзину» и «Купить сейчас» на странице товара */
+/** Кнопки «В корзину» и «Перейти в корзину» на странице товара */
 export function BuyButtons({ line, qty, disabled }: { line: LineInput; qty: number; disabled?: boolean }) {
   const [added, flash] = useAdded()
+  const { t, path } = useI18n()
 
   return (
     <div className="flex flex-1 flex-wrap gap-2">
@@ -56,20 +59,20 @@ export function BuyButtons({ line, qty, disabled }: { line: LineInput; qty: numb
       >
         {added ? (
           <>
-            <IconCheck size={18} /> Добавлено
+            <IconCheck size={18} /> {t.product.added}
           </>
         ) : disabled ? (
-          'Нет в наличии'
+          t.product.notAvailable
         ) : (
-          'В корзину'
+          t.product.addToCart
         )}
       </button>
       {added && (
         <Link
-          href="/cart"
+          href={path('/cart')}
           className="inline-flex h-13 items-center justify-center rounded-full border border-brand px-5 font-medium text-brand hover:bg-brand hover:text-white"
         >
-          Перейти в корзину
+          {t.product.goToCart}
         </Link>
       )}
     </div>

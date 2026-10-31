@@ -16,6 +16,7 @@ create table if not exists public.categories (
   name        text not null,
   description text,
   sort        int  not null default 0,
+  translations jsonb not null default '{}'::jsonb,
   created_at  timestamptz not null default now()
 );
 
@@ -45,6 +46,7 @@ create table if not exists public.products (
   is_published      boolean not null default true,
   images            text[] not null default '{}',
   sort              int not null default 0,
+  translations      jsonb not null default '{}'::jsonb,   -- переводы текстов: { en: {...}, ro: {...} }
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
@@ -72,6 +74,7 @@ create table if not exists public.certificates (
   lab          text,
   file_url     text,
   is_published boolean not null default true,
+  translations jsonb not null default '{}'::jsonb,   -- переводы названия
   created_at   timestamptz not null default now()
 );
 
@@ -126,10 +129,11 @@ create table if not exists public.settings (
   address            text,
   telegram           text,
   working_hours      text,
-  delivery_cost      numeric(10, 2) not null default 50,
-  free_delivery_from numeric(10, 2) not null default 1000,
+  delivery_cost      numeric(10, 2) not null default 0,
+  free_delivery_from numeric(10, 2) not null default 0,
   delivery_info      text,
   payment_info       text,
+  translations       jsonb not null default '{}'::jsonb,   -- переводы: { en: {...}, ro: {...} }
   updated_at         timestamptz not null default now()
 );
 

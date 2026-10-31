@@ -1,3 +1,4 @@
+import { localePath, type Lang } from '@/i18n/config'
 import { FORMS, PAGE_SIZE, PURPOSES, SORTS, type SortId } from './constants'
 import type { Product } from './types'
 
@@ -55,8 +56,8 @@ export function filtersToQuery(f: Partial<Filters>) {
   return s ? `?${s}` : ''
 }
 
-export function catalogHref(f: Partial<Filters>) {
-  return `/catalog${filtersToQuery(f)}`
+export function catalogHref(lang: Lang, f: Partial<Filters>) {
+  return localePath(lang, `/catalog${filtersToQuery(f)}`)
 }
 
 /** Минимальная цена с учётом вариантов */

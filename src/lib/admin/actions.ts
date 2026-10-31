@@ -30,7 +30,33 @@ function json<T>(fd: FormData, key: string, fallback: T): T {
   }
 }
 
+function cleanRows(rows: Record<string, string>[], a: string, b: string) {
+  return rows.map((r) => ({ [a]: String(r[a] ?? '').trim(), [b]: String(r[b] ?? '').trim() })).filter((r) => r[a])
+}
+
+/**
+ * Переводы из формы: поля tr_en_* и tr_ro_*. Пустые поля не сохраняются —
+ * на сайте вместо них покажется текст на запасном языке.
+ */
+function translationsFrom(fd: FormData, textFields: string[], rowFields: [field: string, a: string, b: string][] = []) {
+  const out: Record<string, Record<string, unknown>> = {}
+  for (const lang of ['en', 'ro']) {
+    const t: Record<string, unknown> = {}
+    for (const f of textFields) {
+      const v = str(fd, `tr_${lang}_${f}`)
+      if (v) t[f] = v
+    }
+    for (const [f, a, b] of rowFields) {
+      const rows = cleanRows(json(fd, `tr_${lang}_${f}`, []), a, b)
+      if (rows.length) t[f] = rows
+    }
+    if (Object.keys(t).length) out[lang] = t
+  }
+  return out
+}
+
 function dbError(message: string) {
+  if (/translations/i.test(message)) return 'В базе нет поля для переводов. Выполните supabase/i18n.sql в Supabase → SQL Editor.'
   if (/duplicate key.*slug/i.test(message)) return 'Такой адрес (slug) уже занят — измените его.'
   if (/row-level security/i.test(message)) return 'Нет прав. Проверьте, что ваш пользователь добавлен в таблицу admins.'
   return `Ошибка базы данных: ${message}`
@@ -102,9 +128,6 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
     }))
     .filter((v) => v.label)
 
-  const clean = (rows: Record<string, string>[], a: string, b: string) =>
-    rows.map((r) => ({ [a]: String(r[a] ?? '').trim(), [b]: String(r[b] ?? '').trim() })).filter((r) => r[a])
-
   const keptImages = json<string[]>(fd, 'images_keep', [])
   const previousImages = json<string[]>(fd, 'images_prev', [])
 
@@ -130,8 +153,8 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
     description: strOrNull(fd, 'description'),
     usage: strOrNull(fd, 'usage'),
     warning: strOrNull(fd, 'warning'),
-    composition: clean(json(fd, 'composition', []), 'name', 'amount'),
-    specs: clean(json(fd, 'specs', []), 'label', 'value'),
+    composition: cleanRows(json(fd, 'composition', []), 'name', 'amount'),
+    specs: cleanRows(json(fd, 'specs', []), 'label', 'value'),
     sku: strOrNull(fd, 'sku'),
     batch: strOrNull(fd, 'batch'),
     price,
@@ -142,6 +165,14 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
     is_popular: bool(fd, 'is_popular'),
     is_published: bool(fd, 'is_published'),
     images: [...keptImages, ...newImages],
+    translations: translationsFrom(
+      fd,
+      ['name', 'pack', 'unit_label', 'short_description', 'description', 'usage', 'warning'],
+      [
+        ['composition', 'name', 'amount'],
+        ['specs', 'label', 'value'],
+      ],
+    ),
   }
 
   const saved = id
@@ -227,6 +258,7 @@ export async function saveCertificate(_prev: FormState, fd: FormData): Promise<F
     lab: strOrNull(fd, 'lab'),
     file_url: fileUrl,
     is_published: bool(fd, 'is_published'),
+    translations: translationsFrom(fd, ['title']),
   }
 
   const res = id ? await sb.from('certificates').update(row).eq('id', id) : await sb.from('certificates').insert(row)
@@ -258,6 +290,7 @@ export async function saveCategory(_prev: FormState, fd: FormData): Promise<Form
     slug: slugify(str(fd, 'slug') || name),
     description: strOrNull(fd, 'description'),
     sort: int(fd, 'sort'),
+    translations: translationsFrom(fd, ['name', 'description']),
   }
   const res = id ? await sb.from('categories').update(row).eq('id', id) : await sb.from('categories').insert(row)
   if (res.error) return { error: dbError(res.error.message) }
@@ -316,6 +349,7 @@ export async function saveSettings(_prev: FormState, fd: FormData): Promise<Form
     free_delivery_from: money(fd, 'free_delivery_from') ?? 0,
     delivery_info: strOrNull(fd, 'delivery_info'),
     payment_info: strOrNull(fd, 'payment_info'),
+    translations: translationsFrom(fd, ['tagline', 'address', 'working_hours', 'delivery_info', 'payment_info']),
   }
 
   const { error } = await sb.from('settings').update(row).eq('id', 1)

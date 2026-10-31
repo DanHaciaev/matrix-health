@@ -14,6 +14,7 @@ export const PURPOSES = [
   { id: 'energy-sleep', label: 'Энергия и сон' },
   { id: 'recovery', label: 'Восстановление' },
   { id: 'heart', label: 'Сердце и сосуды' },
+  { id: 'metabolism', label: 'Метаболизм и вес' },
 ] as const
 
 export const SORTS = [

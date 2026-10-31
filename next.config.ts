@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
     remotePatterns: supabaseImages(),
   },
   experimental: {
+    // Своя 404 для адресов вне /en, /ro, /ru и /admin (у сайта и админки разные корневые layout'ы)
+    globalNotFound: true,
     // Загрузка фото и PDF из админки идёт через Server Actions
     serverActions: {
       bodySizeLimit: "30mb",

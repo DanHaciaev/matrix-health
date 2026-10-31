@@ -8,7 +8,7 @@ import { btn } from '@/components/ui'
 import { requireAdmin } from '@/lib/admin/auth'
 import { matchesQuery } from '@/lib/catalog'
 import { normalizeProduct } from '@/lib/data'
-import { lei } from '@/lib/format'
+import { eur } from '@/lib/format'
 import type { Category } from '@/lib/types'
 
 export const metadata = { title: 'Товары' }
@@ -67,7 +67,7 @@ export default async function ProductsPage(props: PageProps<'/admin/products'>) 
               <Link href="/admin/products/new" className="font-medium text-brand underline">
                 Добавьте первый
               </Link>{' '}
-              или выполните <code className="font-mono">supabase/seed.sql</code> в Supabase.
+              или выполните <code className="font-mono">supabase/peptides.sql</code> в Supabase.
             </>
           ) : (
             'Ничего не найдено'
@@ -107,7 +107,7 @@ export default async function ProductsPage(props: PageProps<'/admin/products'>) 
                     </td>
                     <td className="px-4 py-2.5 text-sm">{p.category?.name ?? '—'}</td>
                     <td className="px-4 py-2.5 whitespace-nowrap tabular-nums">
-                      {lei(p.variants.length ? Math.min(...p.variants.map((v) => v.price)) : p.price)}
+                      {eur(p.variants.length ? Math.min(...p.variants.map((v) => v.price)) : p.price)}
                     </td>
                     <td className={`px-4 py-2.5 font-mono text-sm ${stock === 0 ? 'text-signal' : stock <= 3 ? 'text-[#a2620f]' : ''}`}>{stock}</td>
                     <td className="px-4 py-2.5">

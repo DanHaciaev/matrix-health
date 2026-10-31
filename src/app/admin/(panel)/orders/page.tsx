@@ -5,7 +5,7 @@ import { AdminTitle, Empty } from '@/components/admin/parts'
 import { IconSearch } from '@/components/icons'
 import { requireAdmin } from '@/lib/admin/auth'
 import { DELIVERY_METHODS, ORDER_STATUSES } from '@/lib/constants'
-import { dateTime, lei } from '@/lib/format'
+import { dateTime, eur } from '@/lib/format'
 
 export const metadata = { title: 'Заказы' }
 
@@ -113,7 +113,7 @@ export default async function OrdersPage(props: PageProps<'/admin/orders'>) {
                     {o.city && <span className="block text-mute">{o.city}</span>}
                   </td>
                   <td className="px-4 py-3 tabular-nums">
-                    {lei(Number(o.total))}
+                    {eur(Number(o.total))}
                     <span className="block text-sm text-mute">{(o.items as { qty: number }[]).reduce((s, i) => s + i.qty, 0)} шт.</span>
                   </td>
                   <td className="px-4 py-3 text-sm whitespace-nowrap text-ink-2">{dateTime(o.created_at)}</td>

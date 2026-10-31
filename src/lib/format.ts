@@ -1,7 +1,13 @@
-const money = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 })
+// Все цены магазина — в евро: «90 €», «12,50 €»
+const money = new Intl.NumberFormat('ru-RU', {
+  style: 'currency',
+  currency: 'EUR',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+})
 
-export function lei(value: number) {
-  return `${money.format(value)} лей`
+export function eur(value: number) {
+  return money.format(value)
 }
 
 const dateFmt = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })

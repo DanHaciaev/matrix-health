@@ -4,7 +4,7 @@ import { StatusSelect } from '@/components/admin/controls'
 import { AdminTitle, Card, Empty } from '@/components/admin/parts'
 import { AdminSkeleton } from '@/components/admin/skeleton'
 import { requireAdmin } from '@/lib/admin/auth'
-import { dateTime, lei } from '@/lib/format'
+import { dateTime, eur } from '@/lib/format'
 
 export const metadata = { title: 'Обзор' }
 
@@ -48,7 +48,7 @@ async function Dashboard() {
   const stats = [
     { label: 'Новых заказов', value: String(newCount), href: '/admin/orders?status=new', accent: newCount > 0 },
     { label: 'Заказов сегодня', value: String(todayCount), href: '/admin/orders' },
-    { label: 'Выручка за 30 дней', value: lei(revenue), sub: `${orders.length} заказов · средний ${lei(orders.length ? Math.round(revenue / orders.length) : 0)}` },
+    { label: 'Выручка за 30 дней', value: eur(revenue), sub: `${orders.length} заказов · средний ${eur(orders.length ? Math.round(revenue / orders.length) : 0)}` },
     { label: 'Товаров / документов', value: `${products.data?.length ?? 0} / ${certs.count ?? 0}`, href: '/admin/products' },
   ]
 
@@ -89,7 +89,7 @@ async function Dashboard() {
                       {dateTime(o.created_at)} · {o.phone}
                     </span>
                   </Link>
-                  <span className="font-medium tabular-nums">{lei(Number(o.total))}</span>
+                  <span className="font-medium tabular-nums">{eur(Number(o.total))}</span>
                   <StatusSelect id={o.id} status={o.status} />
                 </li>
               ))}

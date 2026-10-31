@@ -1,21 +1,35 @@
+import Image from 'next/image'
 import Link from 'next/link'
+import mark from '../../public/brand/mark.png'
 
-// Знак: аптечный крест, у которого одно плечо — лист. Рядом — название магазина из настроек.
-export function LogoMark({ className = 'size-9' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <rect width="40" height="40" rx="12" fill="currentColor" />
-      <path d="M16.5 9.5h7v7h7v7h-7v7h-7v-7h-7v-7h7z" fill="#fff" />
-      <path d="M23.5 16.5c0-4.2 3-7.2 7.5-7.2 0 4.5-3 7.2-7.5 7.2z" fill="#f6c76b" />
-    </svg>
-  )
+// Знак клиента (фигура в позе лотоса) — файл public/brand/mark.png, вырезан из public/logo.PNG.
+export function LogoMark({ className = 'h-10 w-auto' }: { className?: string }) {
+  return <Image src={mark} alt="" className={className} priority />
 }
 
-export function Logo({ name, light = false, className = '' }: { name: string; light?: boolean; className?: string }) {
+export function Logo({
+  name,
+  href,
+  light = false,
+  className = '',
+}: {
+  name: string
+  href: string
+  light?: boolean
+  className?: string
+}) {
   return (
-    <Link href="/" className={`flex items-center gap-2.5 whitespace-nowrap ${light ? 'text-white' : 'text-ink'} ${className}`}>
-      <LogoMark className={`size-9 shrink-0 ${light ? 'text-white/15' : 'text-brand'}`} />
-      <span className="text-[19px] leading-none font-bold tracking-[-0.02em]">{name}</span>
+    <Link href={href} className={`flex items-center gap-2.5 whitespace-nowrap ${className}`} aria-label={name}>
+      {light ? (
+        <span className="flex size-12 items-center justify-center rounded-2xl bg-white p-1.5">
+          <LogoMark className="h-auto w-full" />
+        </span>
+      ) : (
+        <LogoMark className="h-11 w-auto" />
+      )}
+      <span className={`font-logo text-[22px] leading-none tracking-[0.04em] uppercase ${light ? 'text-white' : 'text-brand'}`}>
+        {name}
+      </span>
     </Link>
   )
 }

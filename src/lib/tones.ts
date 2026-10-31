@@ -1,11 +1,11 @@
-// Пастельные оттенки категорий. Цвет берётся по порядку категории (поле sort),
+// Пастельные оттенки категорий из палитры логотипа. Цвет берётся по порядку категории (поле sort),
 // поэтому новая категория из админки сама получит свой цвет.
 // Классы записаны целиком, чтобы Tailwind их нашёл.
 export const TONES = [
-  { bg: 'bg-sky', label: 'bg-sky-ink', text: 'text-sky-ink' },
-  { bg: 'bg-lilac', label: 'bg-lilac-ink', text: 'text-lilac-ink' },
-  { bg: 'bg-peach', label: 'bg-peach-ink', text: 'text-peach-ink' },
-  { bg: 'bg-mint', label: 'bg-mint-ink', text: 'text-mint-ink' },
+  { bg: 'bg-cream', label: 'bg-cream-ink', text: 'text-cream-ink' },
+  { bg: 'bg-periwinkle', label: 'bg-periwinkle-ink', text: 'text-periwinkle-ink' },
+  { bg: 'bg-meadow', label: 'bg-meadow-ink', text: 'text-meadow-ink' },
+  { bg: 'bg-mist', label: 'bg-mist-ink', text: 'text-mist-ink' },
 ] as const
 
 export type Tone = (typeof TONES)[number]

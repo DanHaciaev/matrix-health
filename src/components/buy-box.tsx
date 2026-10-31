@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { lei } from '@/lib/format'
+import { useI18n } from '@/i18n/client'
 import type { Product } from '@/lib/types'
 import { BuyButtons } from './add-to-cart'
 import { IconMinus, IconPlus } from './icons'
 
 export function BuyBox({ product }: { product: Product }) {
+  const { t, money, fmt } = useI18n()
   const { variants } = product
   const firstAvailable = variants.find((v) => v.stock > 0) ?? variants[0]
   const [variantId, setVariantId] = useState(firstAvailable?.id ?? null)
@@ -20,19 +21,19 @@ export function BuyBox({ product }: { product: Product }) {
   return (
     <div className="rounded-3xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="text-[34px] leading-none font-semibold tracking-[-0.02em] tabular-nums">{lei(price)}</span>
-        {oldPrice && <span className="text-lg text-mute line-through tabular-nums">{lei(oldPrice)}</span>}
+        <span className="text-[34px] leading-none font-semibold tracking-[-0.02em] tabular-nums">{money(price)}</span>
+        {oldPrice && <span className="text-lg text-mute line-through tabular-nums">{money(oldPrice)}</span>}
         {product.unit_label && <span className="text-sm text-mute">{product.unit_label}</span>}
       </div>
 
-      <p className={`mt-3 flex items-center gap-2 text-sm ${stock > 0 ? 'text-brand' : 'text-signal'}`}>
-        <span className={`size-2 rounded-full ${stock > 0 ? 'bg-brand' : 'bg-signal'}`} />
-        {stock > 5 ? 'В наличии' : stock > 0 ? `Осталось ${stock} шт.` : 'Нет в наличии — уточните срок поставки'}
+      <p className={`mt-3 flex items-center gap-2 text-sm ${stock > 0 ? 'text-sage-dark' : 'text-signal'}`}>
+        <span className={`size-2 rounded-full ${stock > 0 ? 'bg-sage' : 'bg-signal'}`} />
+        {stock > 5 ? t.product.inStock : stock > 0 ? fmt(t.product.left, { n: stock }) : t.product.unavailable}
       </p>
 
       {variants.length > 1 && (
         <fieldset className="mt-6">
-          <legend className="mb-2.5 text-sm font-medium text-ink-2">Дозировка / фасовка</legend>
+          <legend className="mb-2.5 text-sm font-medium text-ink-2">{t.product.dosage}</legend>
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => (
               <button
@@ -60,7 +61,7 @@ export function BuyBox({ product }: { product: Product }) {
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             disabled={qty <= 1}
-            aria-label="Уменьшить количество"
+            aria-label={t.product.decrease}
             className="flex h-full w-11 items-center justify-center disabled:text-line-strong"
           >
             <IconMinus size={16} />
@@ -72,7 +73,7 @@ export function BuyBox({ product }: { product: Product }) {
             type="button"
             onClick={() => setQty((q) => Math.min(Math.max(1, stock), 99, q + 1))}
             disabled={qty >= Math.min(stock, 99)}
-            aria-label="Увеличить количество"
+            aria-label={t.product.increase}
             className="flex h-full w-11 items-center justify-center disabled:text-line-strong"
           >
             <IconPlus size={16} />
@@ -91,6 +92,8 @@ export function BuyBox({ product }: { product: Product }) {
             price,
             image: product.images[0] ?? null,
             form: product.form,
+            tone: product.category?.sort ?? null,
+            pack: product.pack,
           }}
         />
       </div>

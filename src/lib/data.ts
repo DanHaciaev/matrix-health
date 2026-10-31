@@ -75,7 +75,7 @@ export async function getCatalog(): Promise<Catalog> {
     sb.from('categories').select('*').order('sort'),
     sb
       .from('certificates')
-      .select('*, product:products(slug, name, category:categories(slug))')
+      .select('*, product:products(*, category:categories(slug))')
       .eq('is_published', true)
       .order('issued_at', { ascending: false, nullsFirst: false }),
   ])

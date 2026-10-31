@@ -16,22 +16,19 @@ export default async function CategoriesPage() {
 
   return (
     <>
-      <AdminTitle title="Категории" sub="Разделы каталога и меню сайта. Порядок — по возрастанию числа." />
+      <AdminTitle
+        title="Категории"
+        sub="Разделы каталога на трёх языках. Порядок — по возрастанию числа, от него же зависит цвет плиток на сайте."
+      />
 
       <Card>
-        <div className="hidden grid-cols-[1.2fr_1fr_1.6fr_70px_auto] gap-2 pb-1 text-xs text-mute md:grid">
-          <span>Название</span>
-          <span>Адрес</span>
-          <span>Подпись</span>
-          <span>Порядок</span>
-          <span />
-        </div>
         <div className="divide-y divide-line">
           {categories.map((c) => (
-            <CategoryForm key={`${c.id}-${c.name}-${c.sort}`} category={c} count={count(c.id)} />
+            // Ключ меняется после сохранения — форма подхватывает новые значения
+            <CategoryForm key={`${c.id}-${JSON.stringify([c.name, c.description, c.sort, c.slug, c.translations])}`} category={c} count={count(c.id)} />
           ))}
         </div>
-        <div className="mt-2 border-t border-ink pt-2">
+        <div className="mt-2 border-t border-line-strong pt-2">
           <p className="pt-3 text-sm font-medium">Новая категория</p>
           <CategoryForm key={categories.length} category={null} />
         </div>

@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { useI18n } from '@/i18n/client'
 import { tone as toneOf } from '@/lib/tones'
 import { ProductVisual } from './product-visual'
 
@@ -21,6 +22,7 @@ export function ProductGallery({
   const [active, setActive] = useState(0)
   const current = images[active]
   const t = toneOf(tone)
+  const i18n = useI18n()
 
   return (
     <div className="flex flex-col gap-3">
@@ -46,7 +48,7 @@ export function ProductGallery({
               key={src}
               type="button"
               onClick={() => setActive(i)}
-              aria-label={`Фото ${i + 1}`}
+              aria-label={i18n.fmt(i18n.t.product.photo, { n: i + 1 })}
               aria-pressed={i === active}
               className={`relative aspect-square overflow-hidden rounded-2xl ring-offset-2 ring-offset-paper transition ${t.bg} ${
                 i === active ? 'ring-2 ring-brand' : 'opacity-70 hover:opacity-100'

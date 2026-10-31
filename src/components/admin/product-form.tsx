@@ -1,21 +1,24 @@
 'use client'
 
 import Link from 'next/link'
-import { startTransition, useActionState, useState } from 'react'
+import { startTransition, useActionState, useState, type ReactNode } from 'react'
 import { deleteProduct, saveProduct } from '@/lib/admin/actions'
 import { FORMS, PURPOSES } from '@/lib/constants'
 import { slugify } from '@/lib/format'
-import type { Category, Product } from '@/lib/types'
+import type { Category, Product, ProductText } from '@/lib/types'
 import { IconExternal } from '../icons'
 import { btn, checkbox, input, label, textarea } from '../ui'
 import { DeleteButton, FormMessage } from './controls'
 import { ImageManager } from './image-manager'
+import { LangTabs, type EditLang } from './lang-tabs'
 import { RowsEditor } from './rows-editor'
 
 const DEFAULT_SPECS = ['Форма выпуска', 'Количество', 'Производитель', 'Страна', 'Хранение', 'Срок годности'].map((l) => ({
   label: l,
   value: '',
 }))
+
+const DEFAULT_WARNING = 'Не является лекарственным средством. Перед применением проконсультируйтесь со специалистом.'
 
 export function ProductForm({ product, categories }: { product: Product | null; categories: Category[] }) {
   const p = product
@@ -24,6 +27,10 @@ export function ProductForm({ product, categories }: { product: Product | null; 
   const [slug, setSlug] = useState(p?.slug ?? '')
   const [slugTouched, setSlugTouched] = useState(Boolean(p))
   const [hasVariants, setHasVariants] = useState(Boolean(p?.variants.length))
+  const [lang, setLang] = useState<EditLang>('ru')
+
+  const tr = p?.translations ?? {}
+  const filled = { en: Boolean(tr.en?.name), ro: Boolean(tr.ro?.name) }
 
   return (
     <form
@@ -37,91 +44,55 @@ export function ProductForm({ product, categories }: { product: Product | null; 
       <input type="hidden" name="id" value={p?.id ?? ''} />
 
       <div className="space-y-6">
-        <Box title="Основное">
-          <div className="grid gap-4">
-            <Field label="Название">
-              <input
-                name="name"
-                required
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value)
-                  if (!slugTouched) setSlug(slugify(e.target.value))
-                }}
-                placeholder="Например, Омега-3 1000 мг"
-                className={input}
-              />
-            </Field>
-            <Field label="Адрес страницы" hint={`Сайт: /product/${slug || '…'}`}>
-              <input
-                name="slug"
-                value={slug}
-                onChange={(e) => {
-                  setSlugTouched(true)
-                  setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))
-                }}
-                className={`${input} font-mono text-sm`}
-              />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Фасовка" hint="Видна в карточке: «Флакон · 5 мг», «90 капсул»">
-                <input name="pack" defaultValue={p?.pack ?? ''} className={input} />
-              </Field>
-              <Field label="Подпись к цене" hint="«за флакон», «за упаковку»">
-                <input name="unit_label" defaultValue={p?.unit_label ?? ''} className={input} />
-              </Field>
-            </div>
-            <Field label="Короткое описание" hint="1–2 предложения под названием">
-              <textarea name="short_description" rows={2} defaultValue={p?.short_description ?? ''} className={textarea} />
-            </Field>
+        <LangTabs value={lang} onChange={setLang} filled={filled} />
+
+        {/* Все три языка в форме сразу — переключатель только показывает нужный */}
+        <div className={lang === 'ru' ? 'space-y-6' : 'hidden'}>
+          <TextFields
+            prefix=""
+            values={p ?? { warning: DEFAULT_WARNING, specs: DEFAULT_SPECS }}
+            nameField={
+              <>
+                <Field label="Название">
+                  <input
+                    name="name"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value)
+                      if (!slugTouched) setSlug(slugify(e.target.value))
+                    }}
+                    placeholder="Например, Омега-3 1000 мг"
+                    className={input}
+                  />
+                </Field>
+                <Field label="Адрес страницы" hint={`Сайт: /en/product/${slug || '…'} (и /ro/…, /ru/…)`}>
+                  <input
+                    name="slug"
+                    value={slug}
+                    onChange={(e) => {
+                      setSlugTouched(true)
+                      setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))
+                    }}
+                    className={`${input} font-mono text-sm`}
+                  />
+                </Field>
+              </>
+            }
+          />
+        </div>
+
+        {(['en', 'ro'] as const).map((l) => (
+          <div key={l} className={lang === l ? 'space-y-6' : 'hidden'}>
+            <p className="rounded-lg bg-brand-soft px-4 py-3 text-sm text-brand-dark">
+              Пустые поля на сайте заменятся {l === 'ro' ? 'английским, а если нет и его — русским' : 'русским'} текстом.
+              Фото, цены и остатки общие для всех языков.
+            </p>
+            <TextFields prefix={`tr_${l}_`} values={tr[l] ?? {}} />
           </div>
-        </Box>
+        ))}
 
         <Box title="Фото">
           <ImageManager initial={p?.images ?? []} />
-        </Box>
-
-        <Box title="Описание и применение">
-          <div className="grid gap-4">
-            <Field label="Подробное описание" hint="Пустая строка между абзацами — новый абзац">
-              <textarea name="description" rows={7} defaultValue={p?.description ?? ''} className={textarea} />
-            </Field>
-            <Field label="Способ применения и противопоказания">
-              <textarea name="usage" rows={4} defaultValue={p?.usage ?? ''} className={textarea} />
-            </Field>
-            <Field label="Предупреждение" hint="Показывается в рамке внизу страницы товара">
-              <textarea
-                name="warning"
-                rows={2}
-                defaultValue={p?.warning ?? 'Не является лекарственным средством. Перед применением проконсультируйтесь со специалистом.'}
-                className={textarea}
-              />
-            </Field>
-          </div>
-        </Box>
-
-        <Box title="Состав">
-          <RowsEditor
-            name="composition"
-            addLabel="Добавить компонент"
-            initial={p?.composition ?? []}
-            cols={[
-              { key: 'name', placeholder: 'Компонент' },
-              { key: 'amount', placeholder: 'Количество', width: 'w-36' },
-            ]}
-          />
-        </Box>
-
-        <Box title="Характеристики">
-          <RowsEditor
-            name="specs"
-            addLabel="Добавить строку"
-            initial={p?.specs.length ? p.specs : DEFAULT_SPECS}
-            cols={[
-              { key: 'label', placeholder: 'Название', width: 'w-44' },
-              { key: 'value', placeholder: 'Значение' },
-            ]}
-          />
         </Box>
       </div>
 
@@ -133,15 +104,19 @@ export function ProductForm({ product, categories }: { product: Product | null; 
             <Toggle name="is_new" label="Метка «Новинка»" defaultChecked={p?.is_new ?? !p} />
           </div>
           {p && (
-            <Link href={`/product/${p.slug}`} target="_blank" className="mt-4 inline-flex items-center gap-1.5 text-sm text-brand hover:underline">
-              <IconExternal size={14} /> Открыть на сайте
-            </Link>
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              {(['en', 'ro', 'ru'] as const).map((l) => (
+                <Link key={l} href={`/${l}/product/${p.slug}`} target="_blank" className="inline-flex items-center gap-1.5 text-brand hover:underline">
+                  <IconExternal size={14} /> {l.toUpperCase()}
+                </Link>
+              ))}
+            </div>
           )}
         </Box>
 
         <Box title="Цена и наличие">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Цена, лей">
+            <Field label="Цена, €">
               <input name="price" inputMode="decimal" required defaultValue={p?.price ?? ''} className={input} />
             </Field>
             <Field label="Старая цена">
@@ -167,13 +142,16 @@ export function ProductForm({ product, categories }: { product: Product | null; 
           </label>
           {hasVariants ? (
             <div className="mt-3">
-              <p className="mb-2 text-xs text-mute">У каждого варианта своя цена и остаток. Цена и остаток выше тогда не используются.</p>
+              <p className="mb-2 text-xs text-mute">
+                У каждого варианта своя цена и остаток. Названия вариантов пишите так, чтобы они были понятны на всех
+                языках, например «10 mg».
+              </p>
               <RowsEditor
                 name="variants"
                 addLabel="Добавить вариант"
                 initial={p?.variants.map((v) => ({ id: v.id, label: v.label, price: v.price, stock: v.stock })) ?? [{ label: '', price: '', stock: '' }]}
                 cols={[
-                  { key: 'label', placeholder: '5 мг' },
+                  { key: 'label', placeholder: '10 mg' },
                   { key: 'price', placeholder: 'Цена', width: 'w-20', inputMode: 'decimal' },
                   { key: 'stock', placeholder: 'Шт.', width: 'w-16', inputMode: 'numeric' },
                 ]}
@@ -249,7 +227,75 @@ export function ProductForm({ product, categories }: { product: Product | null; 
   )
 }
 
-function Box({ title, children }: { title: string; children: React.ReactNode }) {
+/** Тексты товара на одном языке. prefix '' — русский (основные колонки), 'tr_en_' / 'tr_ro_' — переводы. */
+function TextFields({ prefix, values: v, nameField }: { prefix: string; values: Partial<ProductText>; nameField?: ReactNode }) {
+  const n = (field: string) => `${prefix}${field}`
+
+  return (
+    <>
+      <Box title="Основное">
+        <div className="grid gap-4">
+          {nameField ?? (
+            <Field label="Название">
+              <input name={n('name')} defaultValue={v.name ?? ''} className={input} />
+            </Field>
+          )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Фасовка" hint="Видна в карточке: «Флакон · 5 мг», «90 капсул»">
+              <input name={n('pack')} defaultValue={v.pack ?? ''} className={input} />
+            </Field>
+            <Field label="Подпись к цене" hint="«за флакон», «за упаковку»">
+              <input name={n('unit_label')} defaultValue={v.unit_label ?? ''} className={input} />
+            </Field>
+          </div>
+          <Field label="Короткое описание" hint="1–2 предложения под названием">
+            <textarea name={n('short_description')} rows={2} defaultValue={v.short_description ?? ''} className={textarea} />
+          </Field>
+        </div>
+      </Box>
+
+      <Box title="Описание и применение">
+        <div className="grid gap-4">
+          <Field label="Подробное описание" hint="Пустая строка между абзацами — новый абзац">
+            <textarea name={n('description')} rows={7} defaultValue={v.description ?? ''} className={textarea} />
+          </Field>
+          <Field label="Способ применения и противопоказания">
+            <textarea name={n('usage')} rows={4} defaultValue={v.usage ?? ''} className={textarea} />
+          </Field>
+          <Field label="Предупреждение" hint="Показывается в рамке внизу страницы товара">
+            <textarea name={n('warning')} rows={2} defaultValue={v.warning ?? ''} className={textarea} />
+          </Field>
+        </div>
+      </Box>
+
+      <Box title="Состав">
+        <RowsEditor
+          name={n('composition')}
+          addLabel="Добавить компонент"
+          initial={v.composition ?? []}
+          cols={[
+            { key: 'name', placeholder: 'Компонент' },
+            { key: 'amount', placeholder: 'Количество', width: 'w-36' },
+          ]}
+        />
+      </Box>
+
+      <Box title="Характеристики">
+        <RowsEditor
+          name={n('specs')}
+          addLabel="Добавить строку"
+          initial={v.specs ?? []}
+          cols={[
+            { key: 'label', placeholder: 'Название', width: 'w-44' },
+            { key: 'value', placeholder: 'Значение' },
+          ]}
+        />
+      </Box>
+    </>
+  )
+}
+
+function Box({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-lg border border-line bg-surface">
       <h2 className="border-b border-line px-5 py-3 font-semibold">{title}</h2>
@@ -258,7 +304,7 @@ function Box({ title, children }: { title: string; children: React.ReactNode }) 
   )
 }
 
-function Field({ label: text, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({ label: text, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
       <span className={label}>{text}</span>

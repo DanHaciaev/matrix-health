@@ -6,6 +6,15 @@ import type { Settings } from '@/lib/types'
 import { btn, input, label, textarea } from '../ui'
 import { FormMessage } from './controls'
 
+// Поля настроек, у которых есть английская и румынская версии
+const TRANSLATED = [
+  { key: 'tagline', label: 'Слоган', long: false },
+  { key: 'working_hours', label: 'Часы работы', long: false },
+  { key: 'address', label: 'Адрес', long: false },
+  { key: 'delivery_info', label: 'О доставке', long: true },
+  { key: 'payment_info', label: 'Способы оплаты', long: true },
+] as const
+
 export function SettingsForm({ settings: s }: { settings: Settings }) {
   const [state, action, pending] = useActionState(saveSettings, {})
 
@@ -46,10 +55,10 @@ export function SettingsForm({ settings: s }: { settings: Settings }) {
       </Group>
 
       <Group title="Доставка и оплата" note="Стоимость доставки считается автоматически в корзине и при оформлении заказа.">
-        <F label="Стоимость доставки, лей">
+        <F label="Стоимость доставки, €">
           <input name="delivery_cost" inputMode="decimal" defaultValue={s.delivery_cost} className={input} />
         </F>
-        <F label="Бесплатно от, лей">
+        <F label="Бесплатная доставка от, €">
           <input name="free_delivery_from" inputMode="decimal" defaultValue={s.free_delivery_from} className={input} />
         </F>
         <F label="Дополнительно о доставке" wide>
@@ -58,6 +67,25 @@ export function SettingsForm({ settings: s }: { settings: Settings }) {
         <F label="Способы оплаты (свой текст вместо стандартного списка)" wide>
           <textarea name="payment_info" rows={3} defaultValue={s.payment_info ?? ''} className={textarea} />
         </F>
+      </Group>
+
+      <Group
+        title="Переводы: English и Română"
+        note="Тексты выше — на русском. Здесь — для английской и румынской версий сайта. Пустое поле заменится русским текстом."
+      >
+        {TRANSLATED.map((f) => (
+          <div key={f.key} className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
+            {(['en', 'ro'] as const).map((l) => (
+              <F key={l} label={`${f.label} · ${l === 'en' ? 'English' : 'Română'}`}>
+                {f.long ? (
+                  <textarea name={`tr_${l}_${f.key}`} rows={2} defaultValue={s.translations?.[l]?.[f.key] ?? ''} className={textarea} />
+                ) : (
+                  <input name={`tr_${l}_${f.key}`} defaultValue={s.translations?.[l]?.[f.key] ?? ''} className={input} />
+                )}
+              </F>
+            ))}
+          </div>
+        ))}
       </Group>
 
       <div className="sticky bottom-0 -mx-4 flex items-center gap-4 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0">

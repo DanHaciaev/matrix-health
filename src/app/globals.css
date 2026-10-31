@@ -1,39 +1,48 @@
 @import "tailwindcss";
 
+/* Палитра по логотипу Health Matrix:
+   тёмно-синий контур, сиренево-голубое тело, серо-голубая голова, шалфейно-зелёное основание. */
 @theme {
-  /* Основа: светлый, чуть зеленоватый фон и белые поверхности */
-  --color-paper: #f4f7f3;
+  /* Основа: прохладный светлый фон и белые поверхности */
+  --color-paper: #f5f7fc;
   --color-surface: #ffffff;
-  --color-sand: #ebf0ea;
-  --color-sand-2: #dfe7de;
-  --color-line: #e0e7df;
-  --color-line-strong: #c5d0c4;
+  --color-sand: #edf1f9;
+  --color-sand-2: #e0e6f3;
+  --color-line: #e2e7f1;
+  --color-line-strong: #c7d0e2;
 
-  /* Текст: глубокий зелёно-чёрный вместо чистого чёрного */
-  --color-ink: #13261d;
-  --color-ink-2: #3b4d44;
-  --color-mute: #6b7c73;
+  /* Текст: глубокий синий вместо чёрного */
+  --color-ink: #0f1a44;
+  --color-ink-2: #3a4468;
+  --color-mute: #6b7392;
 
-  /* Фирменный зелёный */
-  --color-brand: #17694a;
-  --color-brand-dark: #0f4c35;
-  --color-brand-soft: #dbefe2;
+  /* Фирменный тёмно-синий из логотипа */
+  --color-brand: #0b2386;
+  --color-brand-dark: #071761;
+  --color-brand-soft: #e5ecfd;
 
-  /* Тёплый коралловый — новинки, скидки, важное */
-  --color-signal: #e0623a;
-  --color-signal-soft: #fde9e0;
-  --color-sun: #f6c76b;
+  /* Светлый сиренево-голубой — акцент на синем фоне */
+  --color-accent: #b8cbf5;
 
-  /* Пастельные оттенки категорий и их насыщенные пары для этикеток */
-  --color-mint: #dcf0e3;
-  --color-mint-ink: #1d7a55;
-  --color-lilac: #e8e4f8;
-  --color-lilac-ink: #5b4aa6;
-  --color-peach: #fde6d3;
-  --color-peach-ink: #b45a22;
-  --color-sky: #ddebf8;
-  --color-sky-ink: #2a628f;
+  /* Шалфейно-зелёный — «здоровье», наличие, подтверждения */
+  --color-sage: #839b6b;
+  --color-sage-dark: #5f7a47;
+
+  /* Красный-терракот — только скидки и ошибки */
+  --color-signal: #cf5a3a;
+  --color-signal-soft: #fbe8e1;
+
+  /* Пастельные фоны категорий и цвет этикетки на упаковке */
+  --color-periwinkle: #e4ecfd;
+  --color-periwinkle-ink: #1f3cae;
+  --color-meadow: #e8efdf;
+  --color-meadow-ink: #5f7a47;
+  --color-mist: #e7ecf4;
+  --color-mist-ink: #4b6187;
+  --color-cream: #f3eee4;
+  --color-cream-ink: #8a6b3c;
 
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-logo: var(--font-logo-serif), Georgia, serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }

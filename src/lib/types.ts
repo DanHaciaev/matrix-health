@@ -1,12 +1,19 @@
 import type { DeliveryMethod, FormId, OrderStatus, PaymentMethod } from './constants'
 
+// Переводы текстов: русский лежит в обычных колонках, английский и румынский — здесь
+export type TranslatedLang = 'en' | 'ro'
+export type Translations<T> = Partial<Record<TranslatedLang, Partial<T>>>
+
 export type Category = {
   id: string
   slug: string
   name: string
   description: string | null
   sort: number
+  translations?: Translations<CategoryText>
 }
+
+export type CategoryText = { name: string; description: string | null }
 
 export type Variant = {
   id: string
@@ -49,7 +56,13 @@ export type Product = {
   created_at: string
   updated_at?: string
   variants: Variant[]
+  translations?: Translations<ProductText>
 }
+
+export type ProductText = Pick<
+  Product,
+  'name' | 'pack' | 'unit_label' | 'short_description' | 'description' | 'usage' | 'warning' | 'composition' | 'specs'
+>
 
 export type Certificate = {
   id: string
@@ -62,8 +75,16 @@ export type Certificate = {
   file_url: string | null
   is_published: boolean
   created_at: string
-  product: { slug: string; name: string; category: { slug: string } | null } | null
+  translations?: Translations<CertificateText>
+  product: {
+    slug: string
+    name: string
+    translations?: Translations<ProductText>
+    category: { slug: string } | null
+  } | null
 }
+
+export type CertificateText = { title: string }
 
 export type Settings = {
   store_name: string
@@ -77,7 +98,10 @@ export type Settings = {
   free_delivery_from: number
   delivery_info: string | null
   payment_info: string | null
+  translations?: Translations<SettingsText>
 }
+
+export type SettingsText = Pick<Settings, 'tagline' | 'address' | 'working_hours' | 'delivery_info' | 'payment_info'>
 
 export type OrderItem = {
   id: string

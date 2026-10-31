@@ -54,6 +54,27 @@ export function CertificateForm({ cert, products }: { cert: Certificate | null; 
         </label>
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block">
+          <span className={label}>Название · English</span>
+          <input
+            name="tr_en_title"
+            defaultValue={cert ? (cert.translations?.en?.title ?? '') : 'Certificate of Analysis'}
+            placeholder="Certificate of Analysis"
+            className={input}
+          />
+        </label>
+        <label className="block">
+          <span className={label}>Название · Română</span>
+          <input
+            name="tr_ro_title"
+            defaultValue={cert ? (cert.translations?.ro?.title ?? '') : 'Certificat de analiză'}
+            placeholder="Certificat de analiză"
+            className={input}
+          />
+        </label>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-3">
         <label className="block">
           <span className={label}>Партия (LOT)</span>

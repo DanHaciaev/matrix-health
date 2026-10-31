@@ -1,6 +1,8 @@
 // Общие наборы классов. Держим их здесь, чтобы кнопки и поля выглядели одинаково везде.
 
-export const wrap = 'mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10'
+// Ширина контента: 1440px — на больших мониторах сайт не выглядит узким,
+// а строки текста ограничены отдельно (max-w-* у абзацев), чтобы их было удобно читать.
+export const wrap = 'mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10'
 
 const btnBase =
   'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-50'

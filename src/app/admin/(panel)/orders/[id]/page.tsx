@@ -6,7 +6,7 @@ import { IconArrowLeft, IconPhone } from '@/components/icons'
 import { btn } from '@/components/ui'
 import { requireAdmin } from '@/lib/admin/auth'
 import { DELIVERY_METHODS, PAYMENT_METHODS } from '@/lib/constants'
-import { dateTime, lei, telHref } from '@/lib/format'
+import { dateTime, eur, telHref } from '@/lib/format'
 import type { Order, OrderItem } from '@/lib/types'
 import { NoteForm } from './note-form'
 
@@ -65,9 +65,9 @@ export default async function OrderPage(props: PageProps<'/admin/orders/[id]'>) 
                       {i.variant_label && <span className="block text-sm text-mute">{i.variant_label}</span>}
                     </td>
                     <td className="py-3 pr-4 text-right whitespace-nowrap text-ink-2 tabular-nums">
-                      {lei(Number(i.price))} × {i.qty}
+                      {eur(Number(i.price))} × {i.qty}
                     </td>
-                    <td className="py-3 text-right font-medium whitespace-nowrap tabular-nums">{lei(Number(i.price) * i.qty)}</td>
+                    <td className="py-3 text-right font-medium whitespace-nowrap tabular-nums">{eur(Number(i.price) * i.qty)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -75,15 +75,15 @@ export default async function OrderPage(props: PageProps<'/admin/orders/[id]'>) 
             <dl className="mt-4 space-y-1.5 border-t border-ink pt-4 text-[15px]">
               <div className="flex justify-between text-ink-2">
                 <dt>Товары</dt>
-                <dd className="tabular-nums">{lei(Number(order.subtotal))}</dd>
+                <dd className="tabular-nums">{eur(Number(order.subtotal))}</dd>
               </div>
               <div className="flex justify-between text-ink-2">
                 <dt>Доставка</dt>
-                <dd className="tabular-nums">{Number(order.delivery_cost) ? lei(Number(order.delivery_cost)) : 'бесплатно'}</dd>
+                <dd className="tabular-nums">{Number(order.delivery_cost) ? eur(Number(order.delivery_cost)) : 'бесплатно'}</dd>
               </div>
               <div className="flex justify-between pt-1 text-lg font-semibold">
                 <dt>Итого</dt>
-                <dd className="tabular-nums">{lei(Number(order.total))}</dd>
+                <dd className="tabular-nums">{eur(Number(order.total))}</dd>
               </div>
             </dl>
           </Card>

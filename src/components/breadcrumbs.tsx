@@ -1,10 +1,14 @@
 import Link from 'next/link'
+import { getI18n } from '@/i18n/server'
 
-export function Breadcrumbs({ items }: { items: { href?: string; label: string }[] }) {
+/** Хлебные крошки. href пунктов — уже с языком (через i18n.path). */
+export async function Breadcrumbs({ items }: { items: { href?: string; label: string }[] }) {
+  const { t, path } = await getI18n()
+
   return (
-    <nav aria-label="Навигация" className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-mute">
-      <Link href="/" className="hover:text-ink">
-        Главная
+    <nav aria-label={t.nav.breadcrumbs} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-mute">
+      <Link href={path('/')} className="hover:text-ink">
+        {t.nav.home}
       </Link>
       {items.map((item) => (
         <span key={item.label} className="flex items-center gap-2">

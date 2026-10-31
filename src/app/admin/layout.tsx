@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
+import { fontVariables } from '../fonts'
+import '../globals.css'
 
-// Админка всегда рендерится по запросу (читает сессию), статическая оболочка ей не нужна.
+// Админка — отдельный корневой layout: она на русском и не зависит от языка сайта.
+// Всегда рендерится по запросу (читает сессию), статическая оболочка ей не нужна.
 export const instant = false
 
 export const metadata: Metadata = {
@@ -9,5 +12,9 @@ export const metadata: Metadata = {
 }
 
 export default function AdminRootLayout({ children }: LayoutProps<'/admin'>) {
-  return <div className="min-h-dvh bg-paper">{children}</div>
+  return (
+    <html lang="ru" className={`${fontVariables} antialiased`}>
+      <body className="min-h-dvh bg-paper font-sans text-ink selection:bg-brand selection:text-white">{children}</body>
+    </html>
+  )
 }

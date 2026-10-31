@@ -2,9 +2,11 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition, type ReactNode } from 'react'
+import { useI18n } from '@/i18n/client'
 import { catalogHref, type Filters } from '@/lib/catalog'
 import { FORMS, PURPOSES, SORTS, type SortId } from '@/lib/constants'
 import { IconClose, IconSettings } from './icons'
+import { SelectMenu } from './select-menu'
 import { checkbox, input } from './ui'
 
 type Facets = { forms: Record<string, number>; purposes: Record<string, number>; minPrice: number; maxPrice: number }
@@ -22,12 +24,13 @@ export function CatalogControls({
   children: ReactNode
 }) {
   const router = useRouter()
+  const { t, lang, fmt } = useI18n()
   const [pending, startTransition] = useTransition()
   const [drawer, setDrawer] = useState(false)
 
   const go = (patch: Partial<Filters>) => {
     startTransition(() => {
-      router.push(catalogHref({ ...filters, page: 1, ...patch }), { scroll: false })
+      router.push(catalogHref(lang, { ...filters, page: 1, ...patch }), { scroll: false })
     })
   }
 
@@ -39,25 +42,25 @@ export function CatalogControls({
   const chips: { label: string; clear: Partial<Filters> }[] = [
     ...(filters.q ? [{ label: `«${filters.q}»`, clear: { q: '' } }] : []),
     ...filters.forms.map((id) => ({
-      label: FORMS.find((f) => f.id === id)?.label ?? id,
+      label: t.forms[id as keyof typeof t.forms] ?? id,
       clear: { forms: filters.forms.filter((x) => x !== id) },
     })),
     ...filters.purposes.map((id) => ({
-      label: PURPOSES.find((f) => f.id === id)?.label ?? id,
+      label: t.purposes[id as keyof typeof t.purposes] ?? id,
       clear: { purposes: filters.purposes.filter((x) => x !== id) },
     })),
-    ...(filters.min !== null ? [{ label: `от ${filters.min} лей`, clear: { min: null } }] : []),
-    ...(filters.max !== null ? [{ label: `до ${filters.max} лей`, clear: { max: null } }] : []),
-    ...(filters.stock ? [{ label: 'В наличии', clear: { stock: false } }] : []),
+    ...(filters.min !== null ? [{ label: fmt(t.catalog.chipFrom, { n: filters.min }), clear: { min: null } }] : []),
+    ...(filters.max !== null ? [{ label: fmt(t.catalog.chipTo, { n: filters.max }), clear: { max: null } }] : []),
+    ...(filters.stock ? [{ label: t.catalog.chipInStock, clear: { stock: false } }] : []),
   ]
 
   const panel = (
     <div className="flex flex-col gap-8">
-      <FilterGroup title="Форма выпуска">
+      <FilterGroup title={t.catalog.form}>
         {FORMS.filter((f) => facets.forms[f.id] || filters.forms.includes(f.id)).map((f) => (
           <Check
             key={f.id}
-            label={f.label}
+            label={t.forms[f.id]}
             count={facets.forms[f.id] ?? 0}
             checked={filters.forms.includes(f.id)}
             onChange={() => toggle('forms', f.id)}
@@ -65,11 +68,11 @@ export function CatalogControls({
         ))}
       </FilterGroup>
 
-      <FilterGroup title="Назначение">
+      <FilterGroup title={t.catalog.purpose}>
         {PURPOSES.filter((p) => facets.purposes[p.id] || filters.purposes.includes(p.id)).map((p) => (
           <Check
             key={p.id}
-            label={p.label}
+            label={t.purposes[p.id]}
             count={facets.purposes[p.id] ?? 0}
             checked={filters.purposes.includes(p.id)}
             onChange={() => toggle('purposes', p.id)}
@@ -77,19 +80,18 @@ export function CatalogControls({
         ))}
       </FilterGroup>
 
-      <FilterGroup title="Цена, лей">
+      <FilterGroup title={t.catalog.price}>
         <PriceRange
           key={`${filters.min}-${filters.max}`}
           min={filters.min}
           max={filters.max}
-          placeholderMin={facets.minPrice}
-          placeholderMax={facets.maxPrice}
+          labels={{ from: t.catalog.priceFrom, to: t.catalog.priceTo, phFrom: fmt(t.catalog.placeholderFrom, { n: facets.minPrice }), phTo: fmt(t.catalog.placeholderTo, { n: facets.maxPrice }) }}
           onApply={(min, max) => go({ min, max })}
         />
       </FilterGroup>
 
       <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-line pt-6 text-[15px] font-medium">
-        Только в наличии
+        {t.catalog.inStockOnly}
         <input type="checkbox" className={checkbox} checked={filters.stock} onChange={() => go({ stock: !filters.stock })} />
       </label>
     </div>
@@ -106,7 +108,7 @@ export function CatalogControls({
             onClick={() => setDrawer(true)}
             className="flex h-10 items-center gap-2 rounded-full border border-line-strong bg-surface px-3.5 text-sm font-medium lg:hidden"
           >
-            <IconSettings size={16} /> Фильтры
+            <IconSettings size={16} /> {t.catalog.filters}
             {chips.length > 0 && (
               <span className="rounded-full bg-brand px-1.5 text-xs leading-5 font-bold text-white">{chips.length}</span>
             )}
@@ -129,25 +131,17 @@ export function CatalogControls({
                 onClick={() => go({ q: '', forms: [], purposes: [], min: null, max: null, stock: false })}
                 className="h-8 px-1 text-sm text-mute underline underline-offset-4 hover:text-ink"
               >
-                Сбросить всё
+                {t.catalog.resetAll}
               </button>
             )}
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-mute">
-            <span className="hidden sm:inline">Сортировка</span>
-            <select
-              value={filters.sort}
-              onChange={(e) => go({ sort: e.target.value as SortId })}
-              className="h-10 rounded-full border border-line-strong bg-surface px-2.5 text-sm font-medium text-ink outline-none focus:border-brand"
-            >
-              {SORTS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectMenu<SortId>
+            label={t.catalog.sort}
+            value={filters.sort}
+            options={SORTS.map((x) => ({ id: x.id, label: t.sorts[x.id] }))}
+            onChange={(sort) => go({ sort })}
+          />
         </div>
 
         <div className={`transition-opacity duration-200 ${pending ? 'pointer-events-none opacity-50' : ''}`} aria-busy={pending}>
@@ -156,12 +150,12 @@ export function CatalogControls({
       </div>
 
       {drawer && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Фильтры">
-          <button type="button" aria-label="Закрыть" onClick={() => setDrawer(false)} className="absolute inset-0 bg-ink/40" />
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label={t.catalog.filters}>
+          <button type="button" aria-label={t.catalog.close} onClick={() => setDrawer(false)} className="absolute inset-0 bg-ink/40" />
           <div className="absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col rounded-t-xl bg-paper">
             <div className="flex items-center justify-between border-b border-line px-5 py-4">
-              <span className="text-lg font-semibold">Фильтры</span>
-              <button type="button" onClick={() => setDrawer(false)} className="flex size-9 items-center justify-center rounded-full hover:bg-sand" aria-label="Закрыть">
+              <span className="text-lg font-semibold">{t.catalog.filters}</span>
+              <button type="button" onClick={() => setDrawer(false)} className="flex size-9 items-center justify-center rounded-full hover:bg-sand" aria-label={t.catalog.close}>
                 <IconClose size={20} />
               </button>
             </div>
@@ -172,7 +166,7 @@ export function CatalogControls({
                 onClick={() => setDrawer(false)}
                 className="h-12 w-full rounded-full bg-ink font-medium text-white"
               >
-                {pending ? 'Обновляем…' : `Показать ${total}`}
+                {pending ? t.catalog.updating : fmt(t.catalog.show, { n: total })}
               </button>
             </div>
           </div>
@@ -204,14 +198,12 @@ function Check({ label, count, checked, onChange }: { label: string; count: numb
 function PriceRange({
   min,
   max,
-  placeholderMin,
-  placeholderMax,
+  labels,
   onApply,
 }: {
   min: number | null
   max: number | null
-  placeholderMin: number
-  placeholderMax: number
+  labels: { from: string; to: string; phFrom: string; phTo: string }
   onApply: (min: number | null, max: number | null) => void
 }) {
   const [from, setFrom] = useState(min?.toString() ?? '')
@@ -234,8 +226,8 @@ function PriceRange({
     >
       <input
         inputMode="numeric"
-        aria-label="Цена от"
-        placeholder={`от ${placeholderMin}`}
+        aria-label={labels.from}
+        placeholder={labels.phFrom}
         value={from}
         onChange={(e) => setFrom(e.target.value.replace(/[^\d]/g, ''))}
         onBlur={apply}
@@ -244,15 +236,15 @@ function PriceRange({
       <span className="text-mute">–</span>
       <input
         inputMode="numeric"
-        aria-label="Цена до"
-        placeholder={`до ${placeholderMax}`}
+        aria-label={labels.to}
+        placeholder={labels.phTo}
         value={to}
         onChange={(e) => setTo(e.target.value.replace(/[^\d]/g, ''))}
         onBlur={apply}
         className={`${input} h-10 text-sm`}
       />
       <button type="submit" className="sr-only">
-        Применить
+        OK
       </button>
     </form>
   )
