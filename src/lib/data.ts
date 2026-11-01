@@ -3,12 +3,13 @@ import { cacheLife, cacheTag } from 'next/cache'
 import { DEFAULT_FILTERS } from './filters'
 import { createPublicClient } from './supabase/public'
 import { isSupabaseConfigured } from './supabase/env'
-import type { Catalog, Category, Certificate, FilterOption, Product, Settings, Variant } from './types'
+import type { Catalog, Category, Certificate, FilterOption, Product, Service, Settings, Variant } from './types'
 
 // Все публичные данные магазина — одним кешируемым запросом, только из Supabase.
 // Правки из админки видны сразу (updateTag), правки напрямую в Supabase — примерно через минуту.
 export const CATALOG_TAG = 'catalog'
 export const SETTINGS_TAG = 'settings'
+export const SERVICES_TAG = 'services'
 
 const EMPTY_CATALOG: Catalog = { products: [], categories: [], certificates: [], filters: DEFAULT_FILTERS }
 
@@ -110,6 +111,24 @@ export async function getSettings(): Promise<Settings> {
     delivery_cost: num(data.delivery_cost),
     free_delivery_from: num(data.free_delivery_from),
   } as Settings
+}
+
+/** Услуги специалиста. Пока не запущен supabase/services.sql, таблицы нет — список пуст. */
+export async function getServices(): Promise<Service[]> {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag(SERVICES_TAG)
+
+  if (!isSupabaseConfigured) return []
+
+  const { data, error } = await createPublicClient().from('services').select('*').eq('is_published', true).order('sort')
+  if (error) return []
+
+  return (data ?? []).map((row) => ({
+    ...(row as Service),
+    features: (row.features as string[] | null) ?? [],
+    price: numOrNull(row.price),
+  }))
 }
 
 export async function getProduct(slug: string) {

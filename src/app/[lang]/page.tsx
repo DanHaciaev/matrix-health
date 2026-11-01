@@ -6,12 +6,12 @@ import { ProductCard } from '@/components/product-card'
 import { ProductVisual } from '@/components/product-visual'
 import { btn, wrap } from '@/components/ui'
 import { telHref } from '@/lib/format'
-import { getShop } from '@/lib/shop'
+import { getShop, getShopServices } from '@/lib/shop'
 import { tone } from '@/lib/tones'
 import type { Product } from '@/lib/types'
 
 export default async function HomePage() {
-  const { i18n, catalog, settings: s } = await getShop()
+  const [{ i18n, catalog, settings: s }, services] = await Promise.all([getShop(), getShopServices()])
   const { t, path, money, plural, fmt } = i18n
   const { products, categories, certificates } = catalog
 
@@ -169,6 +169,43 @@ export default async function HomePage() {
             {popular.map((p) => (
               <ProductCard key={p.id} product={p} hasDocs={withDocs.has(p.id)} />
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* ——— Консультация специалиста ——— */}
+      {services.length > 0 && (
+        <section className={`${wrap} pt-20 lg:pt-24`}>
+          <div className="grid gap-10 rounded-[32px] bg-cream px-6 py-10 sm:px-10 sm:py-14 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-16 lg:px-16">
+            <div>
+              <h2 className="text-[clamp(1.9rem,3.6vw,2.75rem)] leading-[1.08] font-bold tracking-[-0.03em] text-balance">{t.home.consultTitle}</h2>
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-ink-2">{t.home.consultLead}</p>
+              <Link href={path('/consultation')} className={`${btn.dark} mt-8`}>
+                {t.home.consultCta} <IconArrow size={18} />
+              </Link>
+            </div>
+            <ul className="space-y-3">
+              {services.map((sv) => (
+                <li key={sv.id}>
+                  <Link
+                    href={path('/consultation')}
+                    className="group flex items-center gap-5 rounded-3xl bg-white/75 p-5 transition-colors hover:bg-white sm:p-6"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-lg leading-snug font-semibold">{sv.name}</span>
+                      {sv.summary && <span className="mt-1 block text-[15px] leading-snug text-ink-2">{sv.summary}</span>}
+                    </span>
+                    <span className="shrink-0 text-right font-semibold whitespace-nowrap text-cream-ink tabular-nums">
+                      {sv.price === null
+                        ? t.consultation.priceOnRequest
+                        : sv.period === 'month'
+                          ? `${money(sv.price)} ${t.consultation.perMonth}`
+                          : money(sv.price)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       )}

@@ -1,5 +1,5 @@
 import type { Lang } from '@/i18n/config'
-import type { Catalog, Category, Certificate, FilterOption, Product, Settings, Translations } from './types'
+import type { Catalog, Category, Certificate, FilterOption, Product, Service, Settings, Translations } from './types'
 
 // Подставляет перевод текста. Русский — в обычных колонках таблицы.
 // Если перевода на нужный язык нет: румынский → английский → русский, английский → русский.
@@ -64,6 +64,10 @@ export function localizeSettings(s: Settings, lang: Lang): Settings {
 
 export function localizeFilter(f: FilterOption, lang: Lang): FilterOption {
   return translate(f, f.translations, lang, ['name'])
+}
+
+export function localizeService(s: Service, lang: Lang): Service {
+  return translate(s, s.translations, lang, ['name', 'summary', 'features'])
 }
 
 export function localizeCatalog(c: Catalog, lang: Lang): Catalog {

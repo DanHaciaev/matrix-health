@@ -17,6 +17,8 @@ const en = {
     about: 'About us',
     privacy: 'Privacy policy',
     productNotFound: 'Product not found',
+    consultation: 'Peptide consultation',
+    consultationDescription: 'A specialist will help you choose peptides, tell you which tests to take and guide you through the course.',
   },
 
   nav: {
@@ -33,6 +35,7 @@ const en = {
     mainMenu: 'Main menu',
     breadcrumbs: 'Breadcrumbs',
     categories: 'Categories',
+    consultation: 'Consultation',
   },
 
   header: {
@@ -109,6 +112,54 @@ const en = {
     questionsText:
       'Tell us what you are looking for and we will help you choose the product and dosage. We reply within an hour during business hours.',
     writeTelegram: 'Message us on Telegram',
+    consultTitle: 'Not sure what to choose?',
+    consultLead: 'A peptide specialist will help you choose for your goal, tell you which tests to take and stay in touch throughout the course.',
+    consultCta: 'Book a consultation',
+  },
+
+  consultation: {
+    titleStart: 'Peptide selection',
+    titleAccent: 'with a specialist',
+    lead: 'Not sure where to start? A specialist will select peptides for your goal, tell you which tests to take and guide you through the course.',
+    priceOnRequest: 'Price on request',
+    perMonth: '/ month',
+    once: 'one-time',
+    monthly: 'monthly',
+    choose: 'Choose',
+    chosen: 'Selected',
+    stepsTitle: 'How it works',
+    steps: [
+      { title: 'Leave a request', text: 'Choose a service and briefly describe your goal.' },
+      { title: 'The specialist contacts you', text: 'We will call or message you in the messenger you prefer.' },
+      { title: 'Selection and plan', text: 'You get peptides for your goal, a dosing schedule and a list of tests.' },
+    ],
+    formTitle: 'Leave a request',
+    formLead: 'The specialist will contact you during business hours.',
+    service: 'Service',
+    name: 'Name',
+    phone: 'Phone',
+    contactMethod: 'How should we contact you?',
+    contactMethods: { phone: 'Call', telegram: 'Telegram', viber: 'Viber', whatsapp: 'WhatsApp' },
+    goal: 'Your goal',
+    goalHint: 'Optional, but it helps the specialist prepare',
+    goalPlaceholder: 'What would you like to achieve? Health conditions, medications you take, recent tests…',
+    submit: 'Send request',
+    sending: 'Sending…',
+    consent: 'By clicking the button you agree to the',
+    successTitle: 'Request received',
+    successText: 'Request number {n}. The specialist will contact you during business hours{hours}.',
+    another: 'Send another request',
+    disclaimer: 'The consultation does not replace a doctor’s appointment and is not a diagnosis.',
+    empty: 'Services will appear here soon. In the meantime, call or message us — we will help you choose.',
+    errors: {
+      name: 'How should we address you?',
+      phone: 'We need a phone number to contact you',
+      service: 'Choose a service',
+      check: 'Please check the highlighted fields',
+      notConnected: 'The database is not connected — the request cannot be saved. Call us instead.',
+      failed: 'We could not send the request. Call or message us.',
+      unavailable: 'This service is no longer available. Refresh the page.',
+    },
   },
 
   product: {

@@ -11,8 +11,10 @@ export const instant = false
 
 export default async function PanelLayout({ children }: LayoutProps<'/admin'>) {
   const { sb, user } = await requireAdmin()
-  const [{ count }, settings] = await Promise.all([
+  const [{ count }, requests, settings] = await Promise.all([
     sb.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    // Пока не запущен supabase/services.sql, таблицы нет — count будет null
+    sb.from('service_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     getSettings(),
   ])
 
@@ -32,7 +34,7 @@ export default async function PanelLayout({ children }: LayoutProps<'/admin'>) {
 
   return (
     <div className="lg:flex">
-      <AdminNav newOrders={count ?? 0} storeName={settings.store_name} footer={footer} />
+      <AdminNav newOrders={count ?? 0} newRequests={requests.count ?? 0} storeName={settings.store_name} footer={footer} />
       <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</main>
     </div>
   )

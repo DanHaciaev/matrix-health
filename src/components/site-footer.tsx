@@ -26,6 +26,7 @@ export async function SiteFooter() {
         </FooterCol>
 
         <FooterCol title={t.footer.customers}>
+          <Link href={path('/consultation')}>{t.nav.consultation}</Link>
           <Link href={path('/certificates')}>{t.nav.certificates}</Link>
           <Link href={path('/delivery')}>{t.nav.deliveryFull}</Link>
           <Link href={path('/about')}>{t.nav.about}</Link>

@@ -29,11 +29,12 @@ async function Dashboard() {
   const { sb } = await requireAdmin()
   const { since, today } = periods()
 
-  const [month, recent, products, certs] = await Promise.all([
+  const [month, recent, products, certs, requests] = await Promise.all([
     sb.from('orders').select('total, status, created_at').gte('created_at', since),
     sb.from('orders').select('id, number, customer_name, phone, total, status, created_at').order('created_at', { ascending: false }).limit(8),
     sb.from('products').select('id, name, stock, is_published, variants:product_variants(stock)'),
     sb.from('certificates').select('id', { count: 'exact', head: true }),
+    sb.from('service_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
   ])
 
   const orders = (month.data ?? []).filter((o) => o.status !== 'cancelled')
@@ -47,6 +48,12 @@ async function Dashboard() {
 
   const stats = [
     { label: 'Новых заказов', value: String(newCount), href: '/admin/orders?status=new', accent: newCount > 0 },
+    {
+      label: 'Новых заявок на консультацию',
+      value: String(requests.count ?? 0),
+      href: '/admin/requests?status=new',
+      accent: (requests.count ?? 0) > 0,
+    },
     { label: 'Заказов сегодня', value: String(todayCount), href: '/admin/orders' },
     { label: 'Выручка за 30 дней', value: eur(revenue), sub: `${orders.length} заказов · средний ${eur(orders.length ? Math.round(revenue / orders.length) : 0)}` },
     { label: 'Товаров / документов', value: `${products.data?.length ?? 0} / ${certs.count ?? 0}`, href: '/admin/products' },
@@ -56,7 +63,7 @@ async function Dashboard() {
     <>
       <AdminTitle title="Обзор" sub="Что происходит в магазине" />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         {stats.map((s) => {
           const body = (
             <>

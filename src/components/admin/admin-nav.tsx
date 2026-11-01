@@ -3,21 +3,35 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { IconBox, IconClose, IconFile, IconFilter, IconGrid, IconMenu, IconReceipt, IconSettings, IconTag } from '../icons'
+import { IconBox, IconChat, IconClose, IconFile, IconFilter, IconGrid, IconMenu, IconPulse, IconReceipt, IconSettings, IconTag } from '../icons'
 
 const ITEMS = [
   { href: '/admin', label: 'Обзор', icon: IconGrid },
   { href: '/admin/orders', label: 'Заказы', icon: IconReceipt, badge: 'orders' },
+  { href: '/admin/requests', label: 'Заявки', icon: IconChat, badge: 'requests' },
   { href: '/admin/products', label: 'Товары', icon: IconBox },
   { href: '/admin/certificates', label: 'Сертификаты', icon: IconFile },
   { href: '/admin/categories', label: 'Категории', icon: IconTag },
   { href: '/admin/filters', label: 'Фильтры', icon: IconFilter },
+  { href: '/admin/services', label: 'Услуги', icon: IconPulse },
   { href: '/admin/settings', label: 'Настройки', icon: IconSettings },
 ] as const
 
-export function AdminNav({ newOrders, storeName, footer }: { newOrders: number; storeName: string; footer: React.ReactNode }) {
+export function AdminNav({
+  newOrders,
+  newRequests,
+  storeName,
+  footer,
+}: {
+  newOrders: number
+  newRequests: number
+  storeName: string
+  footer: React.ReactNode
+}) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+
+  const badges = { orders: newOrders, requests: newRequests }
 
   const isActive = (href: string) => (href === '/admin' ? pathname === href : pathname.startsWith(href))
 
@@ -34,8 +48,8 @@ export function AdminNav({ newOrders, storeName, footer }: { newOrders: number; 
         >
           <Icon size={18} />
           <span className="flex-1">{label}</span>
-          {'badge' in rest && newOrders > 0 && (
-            <span className="rounded-sm bg-signal px-1.5 font-mono text-xs leading-5 text-white">{newOrders}</span>
+          {'badge' in rest && badges[rest.badge] > 0 && (
+            <span className="rounded-sm bg-signal px-1.5 font-mono text-xs leading-5 text-white">{badges[rest.badge]}</span>
           )}
         </Link>
       ))}
@@ -49,7 +63,7 @@ export function AdminNav({ newOrders, storeName, footer }: { newOrders: number; 
         <span className="font-semibold">{storeName}</span>
         <button type="button" onClick={() => setOpen(true)} className="relative flex size-10 items-center justify-center rounded-md hover:bg-sand" aria-label="Меню">
           <IconMenu size={20} />
-          {newOrders > 0 && <span className="absolute top-2 right-2 size-2 rounded-full bg-signal" />}
+          {newOrders + newRequests > 0 && <span className="absolute top-2 right-2 size-2 rounded-full bg-signal" />}
         </button>
       </div>
 

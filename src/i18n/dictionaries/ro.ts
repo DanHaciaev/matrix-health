@@ -15,6 +15,8 @@ const ro: Dictionary = {
     about: 'Despre noi',
     privacy: 'Politica de confidențialitate',
     productNotFound: 'Produsul nu a fost găsit',
+    consultation: 'Consultație despre peptide',
+    consultationDescription: 'Specialistul vă ajută să alegeți peptidele, vă spune ce analize să faceți și vă însoțește pe durata curei.',
   },
 
   nav: {
@@ -31,6 +33,7 @@ const ro: Dictionary = {
     mainMenu: 'Meniu principal',
     breadcrumbs: 'Navigare',
     categories: 'Categorii',
+    consultation: 'Consultație',
   },
 
   header: {
@@ -112,6 +115,54 @@ const ro: Dictionary = {
     questionsText:
       'Spuneți-ne ce căutați și vă ajutăm să alegeți produsul și doza. Răspundem în cel mult o oră în timpul programului.',
     writeTelegram: 'Scrieți-ne pe Telegram',
+    consultTitle: 'Nu știți ce să alegeți?',
+    consultLead: 'Specialistul în peptide le alege pentru obiectivul dvs., vă spune ce analize să faceți și rămâne în legătură pe toată durata curei.',
+    consultCta: 'Programați o consultație',
+  },
+
+  consultation: {
+    titleStart: 'Alegerea peptidelor',
+    titleAccent: 'cu un specialist',
+    lead: 'Nu știți de unde să începeți? Specialistul alege peptidele pentru obiectivul dvs., vă spune ce analize să faceți și vă însoțește pe durata curei.',
+    priceOnRequest: 'Preț la cerere',
+    perMonth: '/ lună',
+    once: 'o singură dată',
+    monthly: 'lunar',
+    choose: 'Alege',
+    chosen: 'Ales',
+    stepsTitle: 'Cum se desfășoară',
+    steps: [
+      { title: 'Lăsați o cerere', text: 'Alegeți serviciul și descrieți pe scurt obiectivul dvs.' },
+      { title: 'Specialistul vă contactează', text: 'Vă sunăm sau vă scriem pe aplicația preferată.' },
+      { title: 'Alegere și plan', text: 'Primiți peptidele potrivite, schema de administrare și lista de analize.' },
+    ],
+    formTitle: 'Lăsați o cerere',
+    formLead: 'Specialistul vă va contacta în timpul programului de lucru.',
+    service: 'Serviciu',
+    name: 'Nume',
+    phone: 'Telefon',
+    contactMethod: 'Cum vă putem contacta?',
+    contactMethods: { phone: 'Apel', telegram: 'Telegram', viber: 'Viber', whatsapp: 'WhatsApp' },
+    goal: 'Obiectivul dvs.',
+    goalHint: 'Opțional, dar ajută specialistul să se pregătească',
+    goalPlaceholder: 'Ce doriți să obțineți? Afecțiuni, medicamente pe care le luați, analize recente…',
+    submit: 'Trimite cererea',
+    sending: 'Se trimite…',
+    consent: 'Apăsând butonul, sunteți de acord cu',
+    successTitle: 'Cererea a fost primită',
+    successText: 'Numărul cererii: {n}. Specialistul vă va contacta în timpul programului{hours}.',
+    another: 'Trimiteți încă o cerere',
+    disclaimer: 'Consultația nu înlocuiește vizita la medic și nu reprezintă un diagnostic.',
+    empty: 'Serviciile vor apărea în curând. Până atunci, sunați-ne sau scrieți-ne — vă ajutăm să alegeți.',
+    errors: {
+      name: 'Cum vă putem adresa?',
+      phone: 'Avem nevoie de un număr de telefon pentru a vă contacta',
+      service: 'Alegeți serviciul',
+      check: 'Verificați câmpurile marcate',
+      notConnected: 'Baza de date nu este conectată — cererea nu poate fi salvată. Sunați-ne.',
+      failed: 'Nu am putut trimite cererea. Sunați-ne sau scrieți-ne.',
+      unavailable: 'Acest serviciu nu mai este disponibil. Reîncărcați pagina.',
+    },
   },
 
   product: {

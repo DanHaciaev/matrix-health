@@ -220,3 +220,16 @@ export const IconExternal = (p: P) => (
     <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
   </Svg>
 )
+
+export const IconChat = (p: P) => (
+  <Svg {...p}>
+    <path d="M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-4.5 3.5V17H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+    <path d="M8 10h8M8 13h5" />
+  </Svg>
+)
+
+export const IconPulse = (p: P) => (
+  <Svg {...p}>
+    <path d="M3 12h4l2-5 4 10 2-5h6" />
+  </Svg>
+)

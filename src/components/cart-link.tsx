@@ -16,7 +16,8 @@ export function CartLink() {
       aria-label={count ? fmt(t.header.cartAria, { n: count }) : t.header.cart}
     >
       <IconBag size={19} />
-      <span className="hidden sm:inline">{t.header.cart}</span>
+      {/* На ширине lg места мало — там только значок */}
+      <span className="hidden sm:inline lg:hidden xl:inline">{t.header.cart}</span>
       {count > 0 && (
         <span className="min-w-5 rounded-full bg-accent px-1.5 text-center text-xs leading-5 font-bold text-brand-dark tabular-nums">{count}</span>
       )}

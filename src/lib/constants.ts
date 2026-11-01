@@ -37,6 +37,28 @@ export const PAYMENT_METHODS = [
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]['id']
 
+// Заявки на консультацию и сопровождение
+export const REQUEST_STATUSES = [
+  { id: 'new', label: 'Новая', tone: 'signal' },
+  { id: 'in_work', label: 'В работе', tone: 'brand' },
+  { id: 'done', label: 'Завершена', tone: 'ink' },
+  { id: 'cancelled', label: 'Отменена', tone: 'mute' },
+] as const
+
+export type RequestStatus = (typeof REQUEST_STATUSES)[number]['id']
+
+/** Как клиенту удобнее, чтобы с ним связались */
+export const CONTACT_METHODS = ['phone', 'telegram', 'viber', 'whatsapp'] as const
+
+export type ContactMethod = (typeof CONTACT_METHODS)[number]
+
+export const CONTACT_LABELS: Record<ContactMethod, string> = {
+  phone: 'Звонок',
+  telegram: 'Telegram',
+  viber: 'Viber',
+  whatsapp: 'WhatsApp',
+}
+
 export const PAGE_SIZE = 12
 
 export function statusMeta(id: string) {

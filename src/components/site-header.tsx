@@ -14,17 +14,19 @@ export async function SiteHeader() {
   const { i18n, catalog, settings } = await getShop()
   const { t, path, money, lang } = i18n
 
-  // В шапке только главные разделы. Категории — на главной и в каталоге, а в мобильном меню — всё.
+  // В шапке только главные разделы; на узких экранах часть из них прячется (show), чтобы не вытеснять корзину. Категории — на главной и в каталоге, а в мобильном меню — всё.
   const mainNav = [
     { href: path('/catalog'), label: t.nav.catalog },
+    { href: path('/consultation'), label: t.nav.consultation },
     { href: path('/certificates'), label: t.nav.certificates },
-    { href: path('/delivery'), label: t.nav.delivery },
-    { href: path('/contacts'), label: t.nav.contacts, wideOnly: true },
+    { href: path('/delivery'), label: t.nav.delivery, show: 'hidden xl:block' },
+    { href: path('/contacts'), label: t.nav.contacts, show: 'hidden min-[1400px]:block' },
   ]
 
   const mobileNav = [
     { href: path('/catalog'), label: t.nav.allCatalog },
     ...catalog.categories.map((c) => ({ href: path(`/catalog?cat=${c.slug}`), label: c.name })),
+    { href: path('/consultation'), label: t.nav.consultation },
     { href: path('/certificates'), label: t.nav.certificates },
     { href: path('/delivery'), label: t.nav.deliveryFull },
     { href: path('/contacts'), label: t.nav.contacts },
@@ -63,7 +65,7 @@ export async function SiteHeader() {
       </div>
 
       <div className="border-b border-line bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85">
-        <div className={`${wrap} flex h-16 items-center gap-3 lg:h-[76px] lg:gap-8`}>
+        <div className={`${wrap} flex h-16 items-center gap-3 lg:h-[76px] lg:gap-5 xl:gap-8`}>
           <Logo name={settings.store_name} href={path('/')} className="shrink-0" />
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label={t.nav.mainMenu}>
@@ -72,7 +74,7 @@ export async function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={`rounded-full px-3.5 py-2 text-[15px] font-medium whitespace-nowrap text-ink-2 transition-colors hover:bg-brand-soft hover:text-brand-dark ${
-                  item.wideOnly ? 'hidden xl:block' : ''
+                  item.show ?? ''
                 }`}
               >
                 {item.label}

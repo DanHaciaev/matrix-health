@@ -1,4 +1,4 @@
-import type { DeliveryMethod, OrderStatus, PaymentMethod } from './constants'
+import type { ContactMethod, DeliveryMethod, OrderStatus, PaymentMethod, RequestStatus } from './constants'
 
 // Переводы текстов: русский лежит в обычных колонках, английский и румынский — здесь
 export type TranslatedLang = 'en' | 'ro'
@@ -144,6 +144,39 @@ export type FilterOption = {
   translations?: Translations<{ name: string }>
   sort: number
   is_visible: boolean
+}
+
+/** Услуга специалиста: консультация, сопровождение (таблица services) */
+export type Service = {
+  id: string
+  slug: string
+  name: string
+  summary: string | null
+  features: string[]
+  /** null — «цена по запросу» */
+  price: number | null
+  period: 'once' | 'month'
+  sort: number
+  is_published: boolean
+  translations?: Translations<ServiceText>
+}
+
+export type ServiceText = Pick<Service, 'name' | 'summary' | 'features'>
+
+export type ServiceRequest = {
+  id: string
+  number: number
+  service_id: string | null
+  service_name: string
+  price: number | null
+  period: Service['period'] | null
+  status: RequestStatus
+  customer_name: string
+  phone: string
+  contact_method: ContactMethod
+  comment: string | null
+  admin_note: string | null
+  created_at: string
 }
 
 export type Catalog = {

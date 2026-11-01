@@ -2,8 +2,8 @@
 
 import { refresh, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { DOC_TYPES, ORDER_STATUSES } from '../constants'
-import { CATALOG_TAG, SETTINGS_TAG } from '../data'
+import { DOC_TYPES, ORDER_STATUSES, REQUEST_STATUSES } from '../constants'
+import { CATALOG_TAG, SERVICES_TAG, SETTINGS_TAG } from '../data'
 import { slugify } from '../format'
 import { MEDIA_BUCKET, isSupabaseConfigured } from '../supabase/env'
 import { createSupabaseServer } from '../supabase/server'
@@ -57,6 +57,8 @@ function translationsFrom(fd: FormData, textFields: string[], rowFields: [field:
 }
 
 function dbError(message: string) {
+  if (/service/i.test(message) && /does not exist|schema cache/i.test(message))
+    return 'В базе нет таблиц для услуг. Выполните supabase/services.sql в Supabase → SQL Editor.'
   if (/filter_options/i.test(message) && /does not exist|schema cache/i.test(message))
     return 'В базе нет таблицы фильтров. Выполните supabase/filters.sql в Supabase → SQL Editor.'
   if (/translations/i.test(message)) return 'В базе нет поля для переводов. Выполните supabase/i18n.sql в Supabase → SQL Editor.'
@@ -368,6 +370,68 @@ export async function deleteFilterOption(id: string): Promise<string | null> {
   return null
 }
 
+// ——— Услуги и заявки на них ———
+
+const lines = (fd: FormData, key: string) =>
+  str(fd, key)
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+
+export async function saveService(_prev: FormState, fd: FormData): Promise<FormState> {
+  const { sb } = await requireAdmin()
+  const id = str(fd, 'id')
+  const name = str(fd, 'name')
+  if (!name) return { error: 'Укажите название на русском' }
+
+  const translations = translationsFrom(fd, ['name', 'summary'])
+  for (const lang of ['en', 'ro'] as const) {
+    const features = lines(fd, `tr_${lang}_features`)
+    if (features.length) translations[lang] = { ...translations[lang], features }
+  }
+
+  const row = {
+    name,
+    slug: slugify(str(fd, 'slug') || name),
+    summary: strOrNull(fd, 'summary'),
+    features: lines(fd, 'features'),
+    price: money(fd, 'price'),
+    period: str(fd, 'period') === 'month' ? 'month' : 'once',
+    sort: int(fd, 'sort'),
+    is_published: bool(fd, 'is_published'),
+    translations,
+  }
+
+  const res = id ? await sb.from('services').update(row).eq('id', id) : await sb.from('services').insert(row)
+  if (res.error) return { error: dbError(res.error.message) }
+
+  updateTag(SERVICES_TAG)
+  refresh()
+  return { ok: true, message: id ? 'Сохранено — сайт уже обновился' : 'Услуга добавлена' }
+}
+
+export async function deleteService(id: string) {
+  const { sb } = await requireAdmin()
+  await sb.from('services').delete().eq('id', id)
+  updateTag(SERVICES_TAG)
+  refresh()
+}
+
+export async function setRequestStatus(id: string, status: string) {
+  const { sb } = await requireAdmin()
+  if (!REQUEST_STATUSES.some((s) => s.id === status)) return
+  await sb.from('service_requests').update({ status }).eq('id', id)
+  refresh()
+}
+
+export async function saveRequestNote(_prev: FormState, fd: FormData): Promise<FormState> {
+  const { sb } = await requireAdmin()
+  const { error } = await sb.from('service_requests').update({ admin_note: strOrNull(fd, 'admin_note') }).eq('id', str(fd, 'id'))
+  if (error) return { error: dbError(error.message) }
+  refresh()
+  return { ok: true, message: 'Сохранено' }
+}
+
 // ——— Заказы ———
 
 export async function setOrderStatus(id: string, status: string) {
@@ -392,6 +456,7 @@ export async function refreshSite() {
   await requireAdmin()
   updateTag(CATALOG_TAG)
   updateTag(SETTINGS_TAG)
+  updateTag(SERVICES_TAG)
   refresh()
 }
 
