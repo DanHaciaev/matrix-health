@@ -15,12 +15,14 @@ update public.categories
    }'::jsonb
  where slug = 'peptides';
 
--- Слоган магазина (если он не менялся вручную)
+-- Слоган магазина. Остальные переводы настроек (часы работы, адрес…) не трогаем —
+-- добавляем ключ внутрь en/ro, а не заменяем их целиком.
 update public.settings
-   set translations = coalesce(translations, '{}'::jsonb) || '{
-     "en": { "tagline": "Peptides with laboratory documents for every batch" },
-     "ro": { "tagline": "Peptide cu documente de laborator pentru fiecare lot" }
-   }'::jsonb
+   set translations = coalesce(translations, '{}'::jsonb)
+     || jsonb_build_object(
+          'en', coalesce(translations -> 'en', '{}'::jsonb) || '{"tagline": "Peptides with laboratory documents for every batch"}'::jsonb,
+          'ro', coalesce(translations -> 'ro', '{}'::jsonb) || '{"tagline": "Peptide cu documente de laborator pentru fiecare lot"}'::jsonb
+        )
  where id = 1;
 
 -- Товары
