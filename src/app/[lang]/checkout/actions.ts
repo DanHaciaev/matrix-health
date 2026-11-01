@@ -3,7 +3,10 @@
 import { after } from 'next/server'
 import type { Dictionary } from '@/i18n/dictionaries'
 import { PAYMENT_METHODS } from '@/lib/constants'
+import { DEFAULT_LANG, hasLocale, type Lang } from '@/i18n/config'
 import { getCatalog, getSettings } from '@/lib/data'
+import { localizeProduct } from '@/lib/localize'
+import { mailConfig, orderEmail, sendMail } from '@/lib/mail'
 import { isSupabaseConfigured } from '@/lib/supabase/env'
 import { createPublicClient } from '@/lib/supabase/public'
 import { orderMessage, sendTelegram, siteOrigin, type OrderNotice } from '@/lib/telegram'
@@ -21,6 +24,7 @@ export type CheckoutState = {
 type ItemInput = { product_id: string; variant_id: string | null; qty: number }
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? '').trim()
+const EMAIL_RE = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[a-z]{2,}$/i
 
 export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<CheckoutState> {
   // Ловушка для ботов: поле скрыто от людей
@@ -78,17 +82,42 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
   const orderId = String(row?.order_id ?? '')
   const lang = str(fd, 'lang')
 
-  // Уведомление в Telegram — уже после ответа покупателю, чтобы он не ждал
+  // Письмо покупателю и уведомление в Telegram — уже после ответа, чтобы покупатель не ждал
   after(async () => {
     const [{ products }, settings, origin] = await Promise.all([getCatalog(), getSettings(), siteOrigin()])
-    const lines: OrderNotice['lines'] = items.map((i) => {
-      const product = products.find((p) => p.id === i.product_id)
-      const variant = product?.variants.find((v) => v.id === i.variant_id)
-      return { name: product?.name ?? 'Товар', variant: variant?.label ?? null, qty: i.qty, price: variant?.price ?? product?.price ?? 0 }
-    })
+    const linesIn = (l: Lang) =>
+      items.map((i) => {
+        const found = products.find((p) => p.id === i.product_id)
+        const product = found && localizeProduct(found, l)
+        const variant = product?.variants.find((v) => v.id === i.variant_id)
+        return { name: product?.name ?? '—', variant: variant?.label ?? null, qty: i.qty, price: variant?.price ?? product?.price ?? 0 }
+      })
+    // Telegram — для магазина, на русском; письмо — на языке покупателя
+    const lines: OrderNotice['lines'] = linesIn('ru')
     // Доставка считается так же, как в place_order
     const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0)
     const delivery = subtotal >= settings.free_delivery_from ? 0 : settings.delivery_cost
+
+    let emailSent: boolean | null = null
+    if (EMAIL_RE.test(customer.email) && mailConfig.configured) {
+      const buyerLang = hasLocale(lang) ? lang : DEFAULT_LANG
+      const mail = orderEmail({
+        lang: buyerLang,
+        number,
+        store: settings.store_name,
+        phone: settings.phone,
+        customer: {
+          name: customer.customer_name,
+          city: customer.city,
+          address: customer.address,
+          payment: customer.payment_method as 'cash' | 'card' | 'transfer',
+          comment: customer.comment,
+        },
+        lines: linesIn(buyerLang),
+        delivery,
+      })
+      emailSent = !(await sendMail({ ...mail, to: customer.email, fromName: settings.store_name }))
+    }
 
     await sendTelegram(
       orderMessage({
@@ -106,6 +135,7 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
         },
         lines,
         delivery,
+        emailSent,
       }),
     )
   })

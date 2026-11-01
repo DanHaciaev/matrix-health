@@ -10,7 +10,16 @@ import { PAYMENT_METHODS } from '@/lib/constants'
 import { useI18n } from '@/i18n/client'
 import { placeOrder, type CheckoutState } from './actions'
 
-export function CheckoutForm({ deliveryCost, freeFrom }: { deliveryCost: number; freeFrom: number }) {
+export function CheckoutForm({
+  deliveryCost,
+  freeFrom,
+  emailCopy,
+}: {
+  deliveryCost: number
+  freeFrom: number
+  /** Подключена ли почта — только тогда обещаем прислать заказ на email */
+  emailCopy: boolean
+}) {
   const router = useRouter()
   const { t, path, money, fmt, lang } = useI18n()
   const { items, subtotal } = useCart()
@@ -72,7 +81,7 @@ export function CheckoutForm({ deliveryCost, freeFrom }: { deliveryCost: number;
                 aria-invalid={!!err.phone}
               />
             </Field>
-            <Field label={t.checkout.email} hint={t.checkout.emailHint}>
+            <Field label={t.checkout.email} hint={emailCopy ? t.checkout.emailHintCopy : t.checkout.emailHint}>
               <input name="email" type="email" autoComplete="email" className={input} />
             </Field>
           </div>

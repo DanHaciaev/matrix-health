@@ -7,6 +7,8 @@ import { CATALOG_TAG, SERVICES_TAG, SETTINGS_TAG } from '../data'
 import { slugify } from '../format'
 import { MEDIA_BUCKET, isSupabaseConfigured } from '../supabase/env'
 import { createSupabaseServer } from '../supabase/server'
+import { getSettings } from '../data'
+import { mailConfig, orderEmail, sendMail } from '../mail'
 import { recentChats, sendTelegram, type TelegramChat } from '../telegram'
 import { requireAdmin } from './auth'
 import { getAdminFilters } from './filters'
@@ -470,6 +472,25 @@ export async function sendTelegramTest(): Promise<string | null> {
   return sendTelegram(
     '✅ <b>Бот подключён</b>\n\nСюда будут приходить новые заказы с сайта и заявки на консультацию.',
   )
+}
+
+// ——— Письма покупателям (Gmail) ———
+
+/** Пример письма о заказе — на свой же Gmail. Возвращает текст ошибки или null. */
+export async function sendTestEmail(): Promise<string | null> {
+  await requireAdmin()
+  if (!mailConfig.configured) return 'Не заданы GMAIL_USER и GMAIL_APP_PASSWORD'
+  const settings = await getSettings()
+  const mail = orderEmail({
+    lang: 'ru',
+    number: 1000,
+    store: settings.store_name,
+    phone: settings.phone,
+    customer: { name: 'Тест', city: 'Кишинёв', address: 'ул. Примерная 1, кв. 1', payment: 'cash', comment: 'Это тестовое письмо' },
+    lines: [{ name: 'Пример товара', variant: null, qty: 1, price: 10 }],
+    delivery: 0,
+  })
+  return sendMail({ ...mail, subject: `[Тест] ${mail.subject}`, to: mailConfig.user, fromName: settings.store_name })
 }
 
 // ——— Настройки ———

@@ -103,55 +103,72 @@ export function CatalogControls({
   )
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[272px_1fr] lg:gap-8">
-      <aside className="hidden h-fit rounded-[28px] bg-surface p-6 ring-1 ring-line lg:block">{panel}</aside>
-
-      <div className="min-w-0">
-        <div className="mb-6 flex flex-wrap items-center gap-3">
+    // Две строки: сверху — заголовок фильтров и панель сортировки, снизу — фильтры и товары.
+    // Так карточка фильтров и сетка товаров начинаются на одной линии.
+    <div className="grid gap-x-8 gap-y-5 lg:grid-cols-[272px_1fr]">
+      <div className="hidden items-center justify-between gap-3 px-1 lg:flex">
+        <span className="flex items-center gap-2 text-[15px] font-semibold">
+          <IconSettings size={16} /> {t.catalog.filters}
+        </span>
+        {chips.length > 0 && (
           <button
             type="button"
-            onClick={() => setDrawer(true)}
-            className="flex h-10 items-center gap-2 rounded-full border border-line-strong bg-surface px-3.5 text-sm font-medium lg:hidden"
+            onClick={() => go({ q: '', forms: [], purposes: [], min: null, max: null, stock: false })}
+            className="text-sm text-mute underline underline-offset-4 hover:text-ink"
           >
-            <IconSettings size={16} /> {t.catalog.filters}
-            {chips.length > 0 && (
-              <span className="rounded-full bg-brand px-1.5 text-xs leading-5 font-bold text-white">{chips.length}</span>
-            )}
+            {t.catalog.resetAll}
           </button>
+        )}
+      </div>
 
-          <div className="flex flex-1 flex-wrap gap-2">
-            {chips.map((c) => (
-              <button
-                key={c.label}
-                type="button"
-                onClick={() => go(c.clear)}
-                className="flex h-8 items-center gap-1.5 rounded-full bg-brand-soft pr-2.5 pl-3 text-sm font-medium text-brand-dark hover:bg-sand-2"
-              >
-                {c.label} <IconClose size={14} />
-              </button>
-            ))}
-            {chips.length > 1 && (
-              <button
-                type="button"
-                onClick={() => go({ q: '', forms: [], purposes: [], min: null, max: null, stock: false })}
-                className="h-8 px-1 text-sm text-mute underline underline-offset-4 hover:text-ink"
-              >
-                {t.catalog.resetAll}
-              </button>
-            )}
-          </div>
+      <div className="flex min-w-0 flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setDrawer(true)}
+          className="flex h-10 items-center gap-2 rounded-full border border-line-strong bg-surface px-3.5 text-sm font-medium lg:hidden"
+        >
+          <IconSettings size={16} /> {t.catalog.filters}
+          {chips.length > 0 && (
+            <span className="rounded-full bg-brand px-1.5 text-xs leading-5 font-bold text-white">{chips.length}</span>
+          )}
+        </button>
 
-          <SelectMenu<SortId>
-            label={t.catalog.sort}
-            value={filters.sort}
-            options={SORTS.map((x) => ({ id: x.id, label: t.sorts[x.id] }))}
-            onChange={(sort) => go({ sort })}
-          />
+        <div className="flex flex-1 flex-wrap gap-2">
+          {chips.map((c) => (
+            <button
+              key={c.label}
+              type="button"
+              onClick={() => go(c.clear)}
+              className="flex h-8 items-center gap-1.5 rounded-full bg-brand-soft pr-2.5 pl-3 text-sm font-medium text-brand-dark hover:bg-sand-2"
+            >
+              {c.label} <IconClose size={14} />
+            </button>
+          ))}
+          {/* На компьютере «Сбросить всё» — над фильтрами */}
+          {chips.length > 1 && (
+            <button
+              type="button"
+              onClick={() => go({ q: '', forms: [], purposes: [], min: null, max: null, stock: false })}
+              className="h-8 px-1 text-sm text-mute underline underline-offset-4 hover:text-ink lg:hidden"
+            >
+              {t.catalog.resetAll}
+            </button>
+          )}
         </div>
 
-        <div className={`transition-opacity duration-200 ${pending ? 'pointer-events-none opacity-50' : ''}`} aria-busy={pending}>
-          {children}
-        </div>
+        <SelectMenu<SortId>
+          label={t.catalog.sort}
+          value={filters.sort}
+          options={SORTS.map((x) => ({ id: x.id, label: t.sorts[x.id] }))}
+          onChange={(sort) => go({ sort })}
+        />
+      </div>
+
+      {/* Под шапкой сайта (она прилипает сверху) — чтобы фильтры были под рукой при прокрутке */}
+      <aside className="hidden h-fit rounded-[28px] bg-surface p-6 ring-1 ring-line lg:sticky lg:top-32 lg:block">{panel}</aside>
+
+      <div className={`min-w-0 transition-opacity duration-200 ${pending ? 'pointer-events-none opacity-50' : ''}`} aria-busy={pending}>
+        {children}
       </div>
 
       {drawer && (

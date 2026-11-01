@@ -83,6 +83,8 @@ export type OrderNotice = {
   customer: { name: string; phone: string; email: string; city: string; address: string; payment: string; comment: string }
   lines: { name: string; variant: string | null; qty: number; price: number }[]
   delivery: number
+  /** Письмо покупателю: true — ушло, false — не ушло, null — не отправлялось */
+  emailSent?: boolean | null
 }
 
 export function orderMessage(o: OrderNotice) {
@@ -96,7 +98,7 @@ export function orderMessage(o: OrderNotice) {
       '👤 <b>Покупатель</b>',
       line('Имя', c.name),
       line('Телефон', c.phone),
-      line('Email', c.email),
+      line('Email', c.email && c.email + (o.emailSent === true ? ' (письмо с заказом отправлено)' : o.emailSent === false ? ' (письмо не отправилось)' : '')),
       line('Язык сайта', LANG_NAMES[o.lang]),
     ),
     block('📍 <b>Доставка</b>', line('Город', c.city), line('Адрес', c.address)),
