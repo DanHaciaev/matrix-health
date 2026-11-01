@@ -438,6 +438,8 @@ export async function setOrderStatus(id: string, status: string) {
   const { sb } = await requireAdmin()
   if (!ORDER_STATUSES.some((s) => s.id === status)) return
   await sb.from('orders').update({ status }).eq('id', id)
+  // При отмене база возвращает товар на склад — обновляем остатки на сайте
+  updateTag(CATALOG_TAG)
   refresh()
 }
 

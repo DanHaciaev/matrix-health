@@ -377,6 +377,55 @@ revoke all on function public.place_order(jsonb, jsonb) from public;
 grant execute on function public.place_order(jsonb, jsonb) to anon, authenticated;
 
 -- ---------------------------------------------------------------------
+--  Отмена заказа возвращает товар на склад (и наоборот), см. order-stock.sql
+-- ---------------------------------------------------------------------
+
+create or replace function public.restock_on_cancel()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_sign int;
+begin
+  if new.status = 'cancelled' and old.status <> 'cancelled' then
+    v_sign := 1;     -- вернуть на склад
+  elsif old.status = 'cancelled' and new.status <> 'cancelled' then
+    v_sign := -1;    -- снова списать
+  else
+    return new;
+  end if;
+
+  update public.product_variants v
+     set stock = greatest(0, v.stock + v_sign * i.qty)
+    from (
+      select variant_id, sum(qty) as qty
+        from public.order_items
+       where order_id = new.id and variant_id is not null
+       group by variant_id
+    ) i
+   where v.id = i.variant_id;
+
+  update public.products p
+     set stock = greatest(0, p.stock + v_sign * i.qty)
+    from (
+      select product_id, sum(qty) as qty
+        from public.order_items
+       where order_id = new.id and variant_id is null and product_id is not null
+       group by product_id
+    ) i
+   where p.id = i.product_id;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists orders_restock on public.orders;
+create trigger orders_restock after update of status on public.orders
+  for each row execute function public.restock_on_cancel();
+
+-- ---------------------------------------------------------------------
 --  Хранилище файлов: фото товаров и PDF сертификатов
 -- ---------------------------------------------------------------------
 
