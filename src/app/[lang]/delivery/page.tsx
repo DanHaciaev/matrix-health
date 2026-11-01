@@ -15,16 +15,8 @@ export default async function DeliveryPage() {
   const d = t.delivery
   const paid = s.free_delivery_from > 0 ? fmt(d.price, { cost: money(s.delivery_cost), free: money(s.free_delivery_from) }) : money(s.delivery_cost)
 
-  const methods = [
-    { title: d.courierTitle, time: d.courierTime, price: paid, text: d.courierText },
-    { title: d.postTitle, time: d.postTime, price: paid, text: d.postText },
-    {
-      title: d.pickupTitle,
-      time: d.pickupTime,
-      price: d.free,
-      text: s.address ? fmt(d.pickupText, { address: s.address, hours: s.working_hours ?? '' }) : d.pickupUnknown,
-    },
-  ]
+  // Доставляет только курьер магазина
+  const methods = [{ title: d.courierTitle, time: d.courierTime, price: paid, text: d.courierText }]
 
   return (
     <div className={`${wrap} pt-6 lg:pt-8`}>

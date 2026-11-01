@@ -54,7 +54,6 @@ const ro: Dictionary = {
     catalog: 'Catalog',
     customers: 'Pentru clienți',
     contact: 'Contactați-ne',
-    telegram: 'Scrieți-ne pe Telegram',
     disclaimer:
       'Informațiile de pe site au caracter informativ și nu constituie o recomandare medicală. Consultați un medic înainte de utilizare.',
   },
@@ -108,13 +107,12 @@ const ro: Dictionary = {
       { q: 'Ce metode de plată există?', a: 'Numerar sau card la livrare, precum și transfer pe card.' },
       {
         q: 'Cât durează livrarea?',
-        a: 'Prin curier în Chișinău — a doua zi, prin Poșta Moldovei — 2–4 zile. Ridicare personală — în ziua comenzii.',
+        a: 'Livrăm singuri, cu curierul nostru. După comandă, managerul vă sună pentru a stabili ora potrivită.',
       },
     ],
     questionsTitle: 'Mai aveți întrebări?',
     questionsText:
       'Spuneți-ne ce căutați și vă ajutăm să alegeți produsul și doza. Răspundem în cel mult o oră în timpul programului.',
-    writeTelegram: 'Scrieți-ne pe Telegram',
     consultTitle: 'Nu știți ce să alegeți?',
     consultLead: 'Specialistul în peptide le alege pentru obiectivul dvs., vă spune ce analize să faceți și rămâne în legătură pe toată durata curei.',
     consultCta: 'Programați o consultație',
@@ -142,7 +140,7 @@ const ro: Dictionary = {
     name: 'Nume',
     phone: 'Telefon',
     contactMethod: 'Cum vă putem contacta?',
-    contactMethods: { phone: 'Apel', telegram: 'Telegram', viber: 'Viber', whatsapp: 'WhatsApp' },
+    contactMethods: { phone: 'Apel', viber: 'Viber', whatsapp: 'WhatsApp' },
     goal: 'Obiectivul dvs.',
     goalHint: 'Opțional, dar ajută specialistul să se pregătească',
     goalPlaceholder: 'Ce doriți să obțineți? Afecțiuni, medicamente pe care le luați, analize recente…',
@@ -248,7 +246,6 @@ const ro: Dictionary = {
     notFoundTitle: 'Documentul nu a fost găsit',
     notFoundText:
       'Verificați numărul de pe ambalaj. Dacă este corect, scrieți-ne și vă trimitem certificatul în decurs de o zi.',
-    writeTelegram: 'Scrieți-ne pe Telegram →',
     colDocument: 'Document',
     colProduct: 'Produs',
     colBatch: 'Lot',
@@ -262,6 +259,7 @@ const ro: Dictionary = {
     missingTitle: 'Nu ați găsit documentul?',
     missingText:
       'Trimiteți-ne numărul lotului și vă trimitem certificatul în decurs de o zi lucrătoare. Dacă documentul lipsește, vă spunem sincer.',
+    call: 'Sunați-ne: {phone} →',
   },
 
   lot: {
@@ -294,7 +292,6 @@ const ro: Dictionary = {
     leftForFree: 'Mai adăugați {price} pentru livrare gratuită',
     progress: 'Până la livrarea gratuită',
     total: 'Total',
-    pickupNote: 'Ridicare personală — fără cost de livrare',
     checkout: 'Finalizează comanda',
     continue: 'Continuă cumpărăturile',
   },
@@ -316,8 +313,6 @@ const ro: Dictionary = {
     cityDefault: 'Chișinău',
     address: 'Adresă',
     addressPlaceholder: 'Strada, blocul, apartamentul',
-    pickup: 'Punct de ridicare: {address}. Vă sunăm când comanda este gata.',
-    pickupUnknown: 'adresa o va comunica managerul',
     comment: 'Comentariu la comandă',
     commentPlaceholder: 'Ora convenabilă pentru apel, etajul, interfonul…',
     yourOrder: 'Comanda dumneavoastră',
@@ -340,6 +335,7 @@ const ro: Dictionary = {
       failed: 'Comanda nu a putut fi plasată. Sunați-ne și o preluăm la telefon.',
       unavailable: 'Unul dintre produse nu mai este disponibil. Eliminați-l din coș și încercați din nou.',
     },
+    courierNote: 'Comanda vă va fi adusă de curierul nostru. Managerul vă sună pentru a stabili ora potrivită.',
   },
 
   success: {
@@ -350,19 +346,11 @@ const ro: Dictionary = {
   },
 
   delivery: {
-    lead: 'Livrăm în toată Moldova. Plătiți la primire — după ce ați verificat comanda.',
-    methodsTitle: 'Metode de livrare',
-    courierTitle: 'Curier în Chișinău',
-    courierTime: 'a doua zi',
-    courierText:
-      'Curierul vă sună cu o oră înainte de sosire. Comenzile plasate până la ora 15:00 le livrăm adesea în aceeași zi.',
-    postTitle: 'Poșta Moldovei',
-    postTime: '2–4 zile lucrătoare',
-    postText: 'Expediem în orice localitate. Numărul de urmărire vi-l trimitem prin SMS sau Telegram.',
-    pickupTitle: 'Ridicare personală',
-    pickupTime: 'în ziua comenzii',
-    pickupText: 'Punct de ridicare: {address}. {hours}',
-    pickupUnknown: 'Adresa punctului de ridicare o va comunica managerul.',
+    lead: 'Comenzile sunt livrate de curierul nostru. Plata la livrare — după ce ați verificat comanda.',
+    methodsTitle: 'Cum livrăm',
+    courierTitle: 'Curierul nostru',
+    courierTime: 'stabilim ora împreună cu dvs.',
+    courierText: 'Livrăm fiecare comandă singuri — fără poștă sau servicii terțe. După plasarea comenzii, managerul vă sună pentru a confirma adresa și ora potrivită.',
     price: '{cost}, de la {free} — gratuit',
     free: 'gratuit',
     storageTitle: 'Păstrarea pe drum',
@@ -372,27 +360,22 @@ const ro: Dictionary = {
       'Liofilizatul uscat este mai stabil decât soluția gata preparată, dar respectăm lanțul de frig pentru toate flacoanele, fără excepție.',
     paymentTitle: 'Plată',
     payment: [
-      'numerar curierului sau la punctul de ridicare;',
+      'numerar curierului;',
       'cu cardul la primire (curierul are terminal);',
       'prin transfer pe card după confirmarea comenzii.',
     ],
     returnsTitle: 'Returnare',
-    returnsText:
-      'Dacă ați primit alt produs sau ambalajul este deteriorat, scrieți-ne în termen de 3 zile și îl înlocuim pe cheltuiala noastră. Flacoanele deschise și produsele păstrate fără controlul temperaturii nu pot fi returnate.',
+    returnsText: 'Dacă ați primit alt produs sau ambalajul este deteriorat, sunați-ne în termen de 3 zile și îl înlocuim pe cheltuiala noastră. Flacoanele deschise și produsele păstrate fără controlul temperaturii nu pot fi returnate.',
   },
 
   contacts: {
     lead: 'Răspundem la apeluri și mesaje în timpul programului. Vă ajutăm să alegeți un produs, să verificați un lot sau să modificați o comandă.',
     phone: 'Telefon',
     email: 'Email',
-    telegram: 'Telegram',
-    telegramLink: 'Scrieți în chat',
     address: 'Adresă',
     hours: 'Program',
-    cardTitle: 'Cel mai rapid — pe Telegram',
-    cardText: 'Trimiteți o fotografie a ambalajului sau numărul lotului și vă trimitem documentul și răspundem la întrebări.',
-    openChat: 'Deschide chatul',
-    call: 'Sunați',
+    cardTitle: 'Cel mai simplu — sunați-ne',
+    cardText: 'Spuneți-ne numărul lotului sau întrebați despre un produs — răspundem la întrebări și vă ajutăm să alegeți.',
   },
 
   about: {
@@ -427,7 +410,7 @@ const ro: Dictionary = {
       },
       {
         title: 'Cui le transmitem',
-        text: 'Serviciului de curierat sau Poștei Moldovei — în măsura necesară livrării. Nimănui altcuiva.',
+        text: 'Nimănui. Comenzile sunt livrate de curierul nostru.',
       },
       { title: 'Cât timp le păstrăm', text: 'Datele comenzii se păstrează 3 ani pentru evidență și cazuri de garanție, apoi se șterg.' },
       {
@@ -478,11 +461,6 @@ const ro: Dictionary = {
     new: 'Noutăți',
   },
 
-  deliveryMethods: {
-    courier: { label: 'Curier', hint: 'În Chișinău — a doua zi' },
-    post: { label: 'Poșta Moldovei', hint: 'În toată țara, 2–4 zile' },
-    pickup: { label: 'Ridicare personală', hint: 'Gratuit, de la punctul de ridicare' },
-  },
 
   payment: {
     cash: 'Numerar la livrare',

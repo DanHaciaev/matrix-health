@@ -56,7 +56,6 @@ const en = {
     catalog: 'Catalog',
     customers: 'Customers',
     contact: 'Get in touch',
-    telegram: 'Message us on Telegram',
     disclaimer:
       'The information on this website is for reference only and is not medical advice. Consult a doctor before use.',
   },
@@ -105,13 +104,12 @@ const en = {
       { q: 'What payment methods are available?', a: 'Cash or card on delivery, or a bank card transfer.' },
       {
         q: 'How long does delivery take?',
-        a: 'By courier in Chișinău — the next day, by Moldova Post — 2–4 days. Pickup — on the day of the order.',
+        a: 'We deliver orders ourselves, with our own courier. After you order, the manager will call to agree on a convenient time.',
       },
     ],
     questionsTitle: 'Still have questions?',
     questionsText:
       'Tell us what you are looking for and we will help you choose the product and dosage. We reply within an hour during business hours.',
-    writeTelegram: 'Message us on Telegram',
     consultTitle: 'Not sure what to choose?',
     consultLead: 'A peptide specialist will help you choose for your goal, tell you which tests to take and stay in touch throughout the course.',
     consultCta: 'Book a consultation',
@@ -139,7 +137,7 @@ const en = {
     name: 'Name',
     phone: 'Phone',
     contactMethod: 'How should we contact you?',
-    contactMethods: { phone: 'Call', telegram: 'Telegram', viber: 'Viber', whatsapp: 'WhatsApp' },
+    contactMethods: { phone: 'Call', viber: 'Viber', whatsapp: 'WhatsApp' },
     goal: 'Your goal',
     goalHint: 'Optional, but it helps the specialist prepare',
     goalPlaceholder: 'What would you like to achieve? Health conditions, medications you take, recent tests…',
@@ -244,7 +242,6 @@ const en = {
     reset: 'reset',
     notFoundTitle: 'Document not found',
     notFoundText: 'Check the number on the package. If it is correct, message us and we will send the certificate within a day.',
-    writeTelegram: 'Message us on Telegram →',
     colDocument: 'Document',
     colProduct: 'Product',
     colBatch: 'Batch',
@@ -258,6 +255,7 @@ const en = {
     missingTitle: 'Could not find a document?',
     missingText:
       'Send us the batch number and we will send the certificate within one business day. If there is no document, we will tell you honestly.',
+    call: 'Call us: {phone} →',
   },
 
   lot: {
@@ -290,7 +288,6 @@ const en = {
     leftForFree: 'Add {price} more for free delivery',
     progress: 'Progress to free delivery',
     total: 'Total',
-    pickupNote: 'No delivery cost for pickup',
     checkout: 'Checkout',
     continue: 'Continue shopping',
   },
@@ -312,8 +309,6 @@ const en = {
     cityDefault: 'Chișinău',
     address: 'Address',
     addressPlaceholder: 'Street, building, apartment',
-    pickup: 'Pickup point: {address}. We will call you when the order is ready.',
-    pickupUnknown: 'the manager will confirm the address',
     comment: 'Order comment',
     commentPlaceholder: 'Convenient time to call, floor, intercom…',
     yourOrder: 'Your order',
@@ -336,6 +331,7 @@ const en = {
       failed: 'We could not place the order. Call us and we will take it by phone.',
       unavailable: 'One of the products is no longer available. Remove it from the cart and try again.',
     },
+    courierNote: 'Your order will be delivered by our courier. The manager will call to agree on a convenient time.',
   },
 
   success: {
@@ -346,18 +342,11 @@ const en = {
   },
 
   delivery: {
-    lead: 'We deliver all over Moldova. Pay on delivery — after you have checked your order.',
-    methodsTitle: 'Delivery options',
-    courierTitle: 'Courier in Chișinău',
-    courierTime: 'next day',
-    courierText: 'The courier will call an hour before arrival. Orders placed before 15:00 are often delivered the same day.',
-    postTitle: 'Moldova Post',
-    postTime: '2–4 business days',
-    postText: 'We ship to any town or village. We will send the tracking number by SMS or Telegram.',
-    pickupTitle: 'Pickup',
-    pickupTime: 'on the day of the order',
-    pickupText: 'Pickup point: {address}. {hours}',
-    pickupUnknown: 'The manager will tell you the pickup address.',
+    lead: 'Orders are delivered by our own courier. Pay on delivery — after you have checked your order.',
+    methodsTitle: 'How we deliver',
+    courierTitle: 'Our courier',
+    courierTime: 'we agree the time with you',
+    courierText: 'We deliver every order ourselves — no post or third-party services. After the order, the manager will call to confirm the address and a convenient time.',
     price: '{cost}, free from {free}',
     free: 'free',
     storageTitle: 'Storage in transit',
@@ -365,24 +354,23 @@ const en = {
       'Peptides in vials require +2…+8 °C. We pack them in a thermal bag with an ice pack that holds the temperature for up to a day.',
     storage2: 'Dry lyophilized powder is more stable than a ready solution, but we keep the cold chain for every vial without exception.',
     paymentTitle: 'Payment',
-    payment: ['cash to the courier or at the pickup point;', 'by card on delivery (the courier has a terminal);', 'by bank card transfer after the order is confirmed.'],
+    payment: [
+      'cash to the courier;',
+      'by card on delivery (the courier has a terminal);',
+      'by bank card transfer after the order is confirmed.',
+    ],
     returnsTitle: 'Returns',
-    returnsText:
-      'If you received the wrong product or the package is damaged, message us within 3 days and we will replace it at our expense. Opened vials and products stored without temperature control cannot be returned.',
+    returnsText: 'If you received the wrong product or the package is damaged, call us within 3 days and we will replace it at our expense. Opened vials and products stored without temperature control cannot be returned.',
   },
 
   contacts: {
     lead: 'We answer calls and messages during business hours. We will help you choose a product, check a batch or change an order.',
     phone: 'Phone',
     email: 'Email',
-    telegram: 'Telegram',
-    telegramLink: 'Open chat',
     address: 'Address',
     hours: 'Business hours',
-    cardTitle: 'The fastest way is Telegram',
-    cardText: 'Send a photo of the package or the batch number and we will send the document and answer your questions.',
-    openChat: 'Open chat',
-    call: 'Call',
+    cardTitle: 'The easiest way is to call',
+    cardText: 'Tell us the batch number or ask about a product — we will answer your questions and help you choose.',
   },
 
   about: {
@@ -412,7 +400,7 @@ const en = {
         text: 'Name, phone number, email (if provided), delivery address and order comment. We do not ask for or store bank card details.',
       },
       { title: 'Why', text: 'Only to contact you, confirm and deliver your order. We do not send newsletters without your consent.' },
-      { title: 'Who we share it with', text: 'With the courier service or Moldova Post — to the extent needed for delivery. With no one else.' },
+      { title: 'Who we share it with', text: 'With no one. Orders are delivered by our own courier.' },
       { title: 'How long we keep it', text: 'Order data is kept for 3 years for accounting and warranty cases, then deleted.' },
       {
         title: 'Your rights',
@@ -462,11 +450,6 @@ const en = {
     new: 'New arrivals',
   },
 
-  deliveryMethods: {
-    courier: { label: 'Courier', hint: 'In Chișinău — the next day' },
-    post: { label: 'Moldova Post', hint: 'Nationwide, 2–4 days' },
-    pickup: { label: 'Pickup', hint: 'Free, from the pickup point' },
-  },
 
   payment: {
     cash: 'Cash on delivery',

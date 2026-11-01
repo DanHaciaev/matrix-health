@@ -148,7 +148,7 @@ function RequestForm({
   hours: string | null
   onAgain: () => void
 }) {
-  const { t, path, fmt } = useI18n()
+  const { t, path, fmt, lang } = useI18n()
   const c = t.consultation
   const priceOf = usePrice()
   const [state, submit, pending] = useActionState(requestService, {} as RequestState)
@@ -183,6 +183,7 @@ function RequestForm({
       }}
       className="space-y-6"
     >
+      <input type="hidden" name="lang" value={lang} />
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
 
       {services.length > 1 ? (

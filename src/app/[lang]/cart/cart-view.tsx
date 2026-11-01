@@ -116,7 +116,6 @@ export function CartView({ deliveryCost, freeFrom }: { deliveryCost: number; fre
           <span className="font-medium">{t.cart.total}</span>
           <span className="text-2xl font-semibold tabular-nums">{money(subtotal + delivery)}</span>
         </div>
-        <p className="mt-1 text-xs text-mute">{t.cart.pickupNote}</p>
 
         <Link href={path('/checkout')} className={`${btn.primary} mt-6 w-full`}>
           {t.cart.checkout}

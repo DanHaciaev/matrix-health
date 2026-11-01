@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { IconPhone, IconSend } from '@/components/icons'
+import { IconPhone } from '@/components/icons'
 import { PageHead } from '@/components/page-head'
 import { btn, wrap } from '@/components/ui'
 import { getI18n } from '@/i18n/server'
@@ -54,13 +54,8 @@ export default async function ConsultationPage() {
           <div className="flex flex-col gap-6 rounded-[32px] bg-periwinkle p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
             <p className="max-w-xl text-lg leading-relaxed text-ink-2">{c.empty}</p>
             <div className="flex flex-wrap gap-3">
-              {s.telegram && (
-                <a href={s.telegram} target="_blank" rel="noreferrer" className={btn.dark}>
-                  <IconSend size={18} /> Telegram
-                </a>
-              )}
               {s.phone && (
-                <a href={telHref(s.phone)} className={`${btn.outline} border-ink/20 bg-white/60`}>
+                <a href={telHref(s.phone)} className={btn.dark}>
                   <IconPhone size={18} /> {s.phone}
                 </a>
               )}

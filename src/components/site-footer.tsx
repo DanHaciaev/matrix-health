@@ -40,11 +40,6 @@ export async function SiteFooter() {
             </a>
           )}
           {s.email && <a href={`mailto:${s.email}`}>{s.email}</a>}
-          {s.telegram && (
-            <a href={s.telegram} target="_blank" rel="noreferrer">
-              {t.footer.telegram}
-            </a>
-          )}
           {s.address && <span className="text-white/60">{s.address}</span>}
         </FooterCol>
       </div>

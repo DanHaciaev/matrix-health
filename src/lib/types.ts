@@ -1,4 +1,4 @@
-import type { ContactMethod, DeliveryMethod, OrderStatus, PaymentMethod, RequestStatus } from './constants'
+import type { OrderStatus, PaymentMethod, RequestStatus } from './constants'
 
 // Переводы текстов: русский лежит в обычных колонках, английский и румынский — здесь
 export type TranslatedLang = 'en' | 'ro'
@@ -121,7 +121,7 @@ export type Order = {
   customer_name: string
   phone: string
   email: string | null
-  delivery_method: DeliveryMethod
+  delivery_method: string
   city: string | null
   address: string | null
   payment_method: PaymentMethod
@@ -173,7 +173,7 @@ export type ServiceRequest = {
   status: RequestStatus
   customer_name: string
   phone: string
-  contact_method: ContactMethod
+  contact_method: string
   comment: string | null
   admin_note: string | null
   created_at: string

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { IconArrow, IconPhone, IconSend, IconShield, IconSnow, IconTruck } from '@/components/icons'
+import { IconArrow, IconPhone, IconShield, IconSnow, IconTruck } from '@/components/icons'
 import { LabSheet } from '@/components/lab-sheet'
 import { LotSearch } from '@/components/lot-search'
 import { ProductCard } from '@/components/product-card'
@@ -264,13 +264,8 @@ export default async function HomePage() {
             <p className="mt-3 text-[16px] leading-relaxed text-ink-2">{t.home.questionsText}</p>
           </div>
           <div className="mt-8 flex flex-col gap-3">
-            {s.telegram && (
-              <a href={s.telegram} target="_blank" rel="noreferrer" className={btn.dark}>
-                <IconSend size={18} /> {t.home.writeTelegram}
-              </a>
-            )}
             {s.phone && (
-              <a href={telHref(s.phone)} className={`${btn.outline} border-ink/20 bg-white/60`}>
+              <a href={telHref(s.phone)} className={btn.dark}>
                 <IconPhone size={18} /> {s.phone}
               </a>
             )}

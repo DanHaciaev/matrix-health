@@ -2,19 +2,18 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { startTransition, useActionState, useState } from 'react'
+import { startTransition, useActionState } from 'react'
 import { ProductVisual } from '@/components/product-visual'
 import { btn, input, label, textarea } from '@/components/ui'
 import { useCart } from '@/lib/cart'
-import { DELIVERY_METHODS, PAYMENT_METHODS, type DeliveryMethod } from '@/lib/constants'
+import { PAYMENT_METHODS } from '@/lib/constants'
 import { useI18n } from '@/i18n/client'
 import { placeOrder, type CheckoutState } from './actions'
 
-export function CheckoutForm({ deliveryCost, freeFrom, address }: { deliveryCost: number; freeFrom: number; address: string | null }) {
+export function CheckoutForm({ deliveryCost, freeFrom }: { deliveryCost: number; freeFrom: number }) {
   const router = useRouter()
-  const { t, path, money, fmt } = useI18n()
+  const { t, path, money, fmt, lang } = useI18n()
   const { items, subtotal } = useCart()
-  const [method, setMethod] = useState<DeliveryMethod>('courier')
 
   const [state, submit, pending] = useActionState(async (prev: CheckoutState, fd: FormData) => {
     const result = await placeOrder(prev, fd)
@@ -34,7 +33,7 @@ export function CheckoutForm({ deliveryCost, freeFrom, address }: { deliveryCost
     )
   }
 
-  const delivery = method === 'pickup' || subtotal >= freeFrom ? 0 : deliveryCost
+  const delivery = subtotal >= freeFrom ? 0 : deliveryCost
   const errors = t.checkout.errors
   const err = Object.fromEntries(Object.entries(state.fields ?? {}).map(([k, code]) => [k, errors[code]])) as Partial<Record<string, string>>
 
@@ -53,6 +52,7 @@ export function CheckoutForm({ deliveryCost, freeFrom, address }: { deliveryCost
         name="items"
         value={JSON.stringify(items.map((l) => ({ product_id: l.productId, variant_id: l.variantId, qty: l.qty })))}
       />
+      <input type="hidden" name="lang" value={lang} />
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
 
       <div className="space-y-12">
@@ -79,48 +79,22 @@ export function CheckoutForm({ deliveryCost, freeFrom, address }: { deliveryCost
         </Step>
 
         <Step n={2} title={t.checkout.stepDelivery}>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {DELIVERY_METHODS.map((d) => (
-              <label
-                key={d.id}
-                className={`flex cursor-pointer flex-col rounded-2xl border p-4 transition-colors ${
-                  method === d.id ? 'border-brand bg-brand-soft ring-1 ring-brand' : 'border-line-strong hover:border-ink'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="delivery_method"
-                  value={d.id}
-                  checked={method === d.id}
-                  onChange={() => setMethod(d.id)}
-                  className="sr-only"
-                />
-                <span className="font-medium">{t.deliveryMethods[d.id].label}</span>
-                <span className="mt-1 text-sm text-mute">{t.deliveryMethods[d.id].hint}</span>
-              </label>
-            ))}
+          {/* Доставляет только курьер магазина — выбирать нечего, нужен только адрес */}
+          <p className="mb-4 rounded-2xl bg-sand px-4 py-3 text-[15px] text-ink-2">{t.checkout.courierNote}</p>
+          <div className="grid gap-4 sm:grid-cols-[200px_1fr]">
+            <Field label={t.checkout.city}>
+              <input name="city" autoComplete="address-level2" defaultValue={t.checkout.cityDefault} className={input} />
+            </Field>
+            <Field label={t.checkout.address} error={err.address}>
+              <input
+                name="address"
+                autoComplete="street-address"
+                placeholder={t.checkout.addressPlaceholder}
+                className={input}
+                aria-invalid={!!err.address}
+              />
+            </Field>
           </div>
-
-          {method === 'pickup' ? (
-            <p className="mt-4 rounded-2xl bg-sand px-4 py-3 text-[15px] text-ink-2">
-              {fmt(t.checkout.pickup, { address: address ?? t.checkout.pickupUnknown })}
-            </p>
-          ) : (
-            <div className="mt-4 grid gap-4 sm:grid-cols-[200px_1fr]">
-              <Field label={t.checkout.city}>
-                <input name="city" autoComplete="address-level2" defaultValue={t.checkout.cityDefault} className={input} />
-              </Field>
-              <Field label={t.checkout.address} error={err.address}>
-                <input
-                  name="address"
-                  autoComplete="street-address"
-                  placeholder={t.checkout.addressPlaceholder}
-                  className={input}
-                  aria-invalid={!!err.address}
-                />
-              </Field>
-            </div>
-          )}
         </Step>
 
         <Step n={3} title={t.checkout.stepPayment}>

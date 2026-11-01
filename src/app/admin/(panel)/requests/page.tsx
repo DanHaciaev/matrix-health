@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { AdminTitle, Empty } from '@/components/admin/parts'
 import { RequestNote, RequestStatusSelect } from '@/components/admin/request-controls'
 import { requireAdmin } from '@/lib/admin/auth'
-import { CONTACT_LABELS, REQUEST_STATUSES, type ContactMethod } from '@/lib/constants'
+import { CONTACT_LABELS, REQUEST_STATUSES } from '@/lib/constants'
 import { dateTime, eur } from '@/lib/format'
 import type { ServiceRequest } from '@/lib/types'
 
@@ -11,7 +11,7 @@ export const metadata = { title: 'Заявки' }
 const PER_PAGE = 30
 
 /** Ссылка, чтобы сразу написать клиенту в выбранный им мессенджер */
-function contactHref(method: ContactMethod, phone: string) {
+function contactHref(method: string, phone: string) {
   const digits = phone.replace(/\D/g, '')
   switch (method) {
     case 'telegram':

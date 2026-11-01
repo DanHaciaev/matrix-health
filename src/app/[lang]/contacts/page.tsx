@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { IconPhone, IconSend } from '@/components/icons'
+import { IconPhone } from '@/components/icons'
 import { PageHead } from '@/components/page-head'
 import { wrap } from '@/components/ui'
 import { getI18n } from '@/i18n/server'
@@ -34,15 +34,6 @@ export default async function ContactsPage() {
         </a>
       ),
     })
-  if (s.telegram)
-    rows.push({
-      label: c.telegram,
-      value: (
-        <a href={s.telegram} target="_blank" rel="noreferrer" className="hover:text-brand">
-          {c.telegramLink}
-        </a>
-      ),
-    })
   if (s.address) rows.push({ label: c.address, value: s.address })
   if (s.working_hours) rows.push({ label: c.hours, value: s.working_hours })
 
@@ -64,22 +55,12 @@ export default async function ContactsPage() {
           <p className="text-2xl font-semibold tracking-[-0.02em]">{c.cardTitle}</p>
           <p className="mt-3 leading-relaxed text-white/70">{c.cardText}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            {s.telegram && (
-              <a
-                href={s.telegram}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-accent px-6 font-semibold text-brand-dark hover:brightness-105"
-              >
-                <IconSend size={18} /> {c.openChat}
-              </a>
-            )}
             {s.phone && (
               <a
                 href={telHref(s.phone)}
-                className="inline-flex h-12 items-center gap-2 rounded-full border border-white/30 px-6 font-medium hover:border-white"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-accent px-6 font-semibold text-brand-dark tabular-nums hover:brightness-105"
               >
-                <IconPhone size={18} /> {c.call}
+                <IconPhone size={18} /> {s.phone}
               </a>
             )}
           </div>

@@ -6,6 +6,7 @@ import { IconDownload } from '@/components/icons'
 import { LotSearch } from '@/components/lot-search'
 import { wrap } from '@/components/ui'
 import { getI18n } from '@/i18n/server'
+import { telHref } from '@/lib/format'
 import { getShop } from '@/lib/shop'
 import type { Certificate } from '@/lib/types'
 
@@ -119,9 +120,9 @@ async function Registry({ searchParams }: Pick<PageProps<'/[lang]/certificates'>
         <div className="rounded-3xl border border-dashed border-line-strong px-6 py-14 text-center">
           <p className="text-xl font-medium">{t.certs.notFoundTitle}</p>
           <p className="mx-auto mt-2 max-w-md text-ink-2">{t.certs.notFoundText}</p>
-          {s.telegram && (
-            <a href={s.telegram} target="_blank" rel="noreferrer" className="mt-5 inline-block font-medium text-brand hover:underline">
-              {t.certs.writeTelegram}
+          {s.phone && (
+            <a href={telHref(s.phone)} className="mt-5 inline-block font-medium text-brand hover:underline">
+              {fmt(t.certs.call, { phone: s.phone })}
             </a>
           )}
         </div>
@@ -188,9 +189,9 @@ async function Registry({ searchParams }: Pick<PageProps<'/[lang]/certificates'>
         <div>
           <h2 className="text-xl font-semibold">{t.certs.missingTitle}</h2>
           <p className="mt-3 leading-relaxed text-ink-2">{t.certs.missingText}</p>
-          {s.telegram && (
-            <a href={s.telegram} target="_blank" rel="noreferrer" className="mt-4 inline-block font-medium text-brand hover:underline">
-              {t.certs.writeTelegram}
+          {s.phone && (
+            <a href={telHref(s.phone)} className="mt-4 inline-block font-medium text-brand hover:underline">
+              {fmt(t.certs.call, { phone: s.phone })}
             </a>
           )}
         </div>

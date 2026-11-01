@@ -45,13 +45,10 @@ export function SettingsForm({ settings: s }: { settings: Settings }) {
           <F label="Email">
             <input name="email" type="email" defaultValue={s.email ?? ''} className={input} />
           </F>
-          <F label="Telegram (ссылка)">
-            <input name="telegram" defaultValue={s.telegram ?? ''} placeholder="https://t.me/…" className={input} />
-          </F>
           <F label="Часы работы">
             <input name="working_hours" defaultValue={s.working_hours ?? ''} className={input} />
           </F>
-          <F label="Адрес / пункт самовывоза" wide>
+          <F label="Адрес" wide>
             <input name="address" defaultValue={s.address ?? ''} className={input} />
           </F>
         </Group>

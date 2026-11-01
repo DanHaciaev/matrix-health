@@ -4,7 +4,7 @@ import { StatusSelect } from '@/components/admin/controls'
 import { AdminTitle, Empty } from '@/components/admin/parts'
 import { IconSearch } from '@/components/icons'
 import { requireAdmin } from '@/lib/admin/auth'
-import { DELIVERY_METHODS, ORDER_STATUSES } from '@/lib/constants'
+import { DELIVERY_LABELS, ORDER_STATUSES } from '@/lib/constants'
 import { dateTime, eur } from '@/lib/format'
 
 export const metadata = { title: 'Заказы' }
@@ -109,7 +109,7 @@ export default async function OrdersPage(props: PageProps<'/admin/orders'>) {
                     </a>
                   </td>
                   <td className="px-4 py-3 text-sm text-ink-2">
-                    {DELIVERY_METHODS.find((d) => d.id === o.delivery_method)?.label}
+                    {DELIVERY_LABELS[o.delivery_method] ?? o.delivery_method}
                     {o.city && <span className="block text-mute">{o.city}</span>}
                   </td>
                   <td className="px-4 py-3 tabular-nums">

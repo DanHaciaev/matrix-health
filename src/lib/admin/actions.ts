@@ -7,6 +7,7 @@ import { CATALOG_TAG, SERVICES_TAG, SETTINGS_TAG } from '../data'
 import { slugify } from '../format'
 import { MEDIA_BUCKET, isSupabaseConfigured } from '../supabase/env'
 import { createSupabaseServer } from '../supabase/server'
+import { recentChats, sendTelegram, type TelegramChat } from '../telegram'
 import { requireAdmin } from './auth'
 import { getAdminFilters } from './filters'
 
@@ -451,6 +452,26 @@ export async function saveOrderNote(_prev: FormState, fd: FormData): Promise<For
   return { ok: true, message: 'Заметка сохранена' }
 }
 
+// ——— Telegram-бот ———
+
+/** Чаты, которые недавно писали боту, — чтобы узнать chat id получателя */
+export async function findTelegramChats(): Promise<{ chats?: TelegramChat[]; error?: string }> {
+  await requireAdmin()
+  try {
+    return { chats: await recentChats() }
+  } catch (e) {
+    return { error: `Telegram ответил ошибкой: ${(e as Error).message}` }
+  }
+}
+
+/** Тестовое сообщение всем получателям. Возвращает текст ошибки или null. */
+export async function sendTelegramTest(): Promise<string | null> {
+  await requireAdmin()
+  return sendTelegram(
+    '✅ <b>Бот подключён</b>\n\nСюда будут приходить новые заказы с сайта и заявки на консультацию.',
+  )
+}
+
 // ——— Настройки ———
 
 /** Сбросить кеш сайта — если данные правили напрямую в Supabase */
@@ -471,7 +492,6 @@ export async function saveSettings(_prev: FormState, fd: FormData): Promise<Form
     phone: strOrNull(fd, 'phone'),
     email: strOrNull(fd, 'email'),
     address: strOrNull(fd, 'address'),
-    telegram: strOrNull(fd, 'telegram'),
     working_hours: strOrNull(fd, 'working_hours'),
     delivery_cost: money(fd, 'delivery_cost') ?? 0,
     free_delivery_from: money(fd, 'free_delivery_from') ?? 0,

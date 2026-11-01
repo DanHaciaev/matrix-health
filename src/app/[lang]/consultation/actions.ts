@@ -1,9 +1,12 @@
 'use server'
 
+import { after } from 'next/server'
 import type { Dictionary } from '@/i18n/dictionaries'
 import { CONTACT_METHODS } from '@/lib/constants'
+import { getServices } from '@/lib/data'
 import { isSupabaseConfigured } from '@/lib/supabase/env'
 import { createPublicClient } from '@/lib/supabase/public'
+import { requestMessage, sendTelegram, siteOrigin } from '@/lib/telegram'
 
 // Ошибки возвращаются кодами — форма показывает текст на языке посетителя
 export type RequestError = keyof Dictionary['consultation']['errors']
@@ -49,5 +52,23 @@ export async function requestService(_prev: RequestState, fd: FormData): Promise
     return { error: 'failed' }
   }
 
-  return { ok: true, number: Number(data) }
+  const number = Number(data)
+  const lang = str(fd, 'lang')
+
+  // Уведомление в Telegram — уже после ответа посетителю, чтобы он не ждал
+  after(async () => {
+    const [services, origin] = await Promise.all([getServices(), siteOrigin()])
+    const s = services.find((x) => x.id === service)
+    await sendTelegram(
+      requestMessage({
+        number,
+        adminUrl: origin ? `${origin}/admin/requests` : null,
+        lang,
+        service: s ? { name: s.name, price: s.price, period: s.period } : null,
+        customer: { name: request.customer_name, phone: request.phone, contact: request.contact_method, comment: request.comment },
+      }),
+    )
+  })
+
+  return { ok: true, number }
 }

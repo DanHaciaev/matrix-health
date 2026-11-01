@@ -49,11 +49,6 @@ export async function SiteHeader() {
           </p>
           <div className="hidden shrink-0 items-center gap-5 md:flex">
             {settings.working_hours && <span className="hidden text-white/70 xl:inline">{settings.working_hours}</span>}
-            {settings.telegram && (
-              <a href={settings.telegram} className="hover:underline" target="_blank" rel="noreferrer">
-                Telegram
-              </a>
-            )}
             {settings.phone && (
               <a href={telHref(settings.phone)} className="flex items-center gap-1.5 font-semibold tabular-nums hover:underline">
                 <IconPhone size={14} className="text-accent" />

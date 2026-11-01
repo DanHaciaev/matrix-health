@@ -1,9 +1,12 @@
 'use server'
 
+import { after } from 'next/server'
 import type { Dictionary } from '@/i18n/dictionaries'
-import { DELIVERY_METHODS, PAYMENT_METHODS } from '@/lib/constants'
+import { PAYMENT_METHODS } from '@/lib/constants'
+import { getCatalog, getSettings } from '@/lib/data'
 import { isSupabaseConfigured } from '@/lib/supabase/env'
 import { createPublicClient } from '@/lib/supabase/public'
+import { orderMessage, sendTelegram, siteOrigin, type OrderNotice } from '@/lib/telegram'
 
 // Ошибки возвращаются кодами — форма показывает текст на языке посетителя
 export type CheckoutError = keyof Dictionary['checkout']['errors']
@@ -27,7 +30,8 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
     customer_name: str(fd, 'customer_name'),
     phone: str(fd, 'phone'),
     email: str(fd, 'email'),
-    delivery_method: str(fd, 'delivery_method'),
+    // Доставляет только курьер магазина
+    delivery_method: 'courier',
     city: str(fd, 'city'),
     address: str(fd, 'address'),
     payment_method: str(fd, 'payment_method'),
@@ -37,8 +41,7 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
   const fields: CheckoutState['fields'] = {}
   if (customer.customer_name.length < 2) fields.customer_name = 'name'
   if (customer.phone.replace(/\D/g, '').length < 8) fields.phone = 'phone'
-  if (customer.delivery_method !== 'pickup' && customer.address.length < 4) fields.address = 'address'
-  if (!DELIVERY_METHODS.some((d) => d.id === customer.delivery_method)) customer.delivery_method = 'courier'
+  if (customer.address.length < 4) fields.address = 'address'
   if (!PAYMENT_METHODS.some((p) => p.id === customer.payment_method)) customer.payment_method = 'cash'
   if (Object.keys(fields).length) return { error: 'check', fields }
 
@@ -71,5 +74,41 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
   }
 
   const row = Array.isArray(data) ? data[0] : data
-  return { ok: true, number: Number(row?.order_number) }
+  const number = Number(row?.order_number)
+  const orderId = String(row?.order_id ?? '')
+  const lang = str(fd, 'lang')
+
+  // Уведомление в Telegram — уже после ответа покупателю, чтобы он не ждал
+  after(async () => {
+    const [{ products }, settings, origin] = await Promise.all([getCatalog(), getSettings(), siteOrigin()])
+    const lines: OrderNotice['lines'] = items.map((i) => {
+      const product = products.find((p) => p.id === i.product_id)
+      const variant = product?.variants.find((v) => v.id === i.variant_id)
+      return { name: product?.name ?? 'Товар', variant: variant?.label ?? null, qty: i.qty, price: variant?.price ?? product?.price ?? 0 }
+    })
+    // Доставка считается так же, как в place_order
+    const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0)
+    const delivery = subtotal >= settings.free_delivery_from ? 0 : settings.delivery_cost
+
+    await sendTelegram(
+      orderMessage({
+        number,
+        adminUrl: origin && orderId ? `${origin}/admin/orders/${orderId}` : null,
+        lang,
+        customer: {
+          name: customer.customer_name,
+          phone: customer.phone,
+          email: customer.email,
+          city: customer.city,
+          address: customer.address,
+          payment: customer.payment_method,
+          comment: customer.comment,
+        },
+        lines,
+        delivery,
+      }),
+    )
+  })
+
+  return { ok: true, number }
 }

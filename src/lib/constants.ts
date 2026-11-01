@@ -21,13 +21,12 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number]['id']
 
-export const DELIVERY_METHODS = [
-  { id: 'courier', label: 'Курьер', hint: 'По Кишинёву — на следующий день' },
-  { id: 'post', label: 'Почта Молдовы', hint: 'По всей стране, 2–4 дня' },
-  { id: 'pickup', label: 'Самовывоз', hint: 'Бесплатно, из пункта выдачи' },
-] as const
-
-export type DeliveryMethod = (typeof DELIVERY_METHODS)[number]['id']
+// Доставляет только курьер магазина. Почта и самовывоз остались в базе для старых заказов.
+export const DELIVERY_LABELS: Record<string, string> = {
+  courier: 'Курьер магазина',
+  post: 'Почта Молдовы',
+  pickup: 'Самовывоз',
+}
 
 export const PAYMENT_METHODS = [
   { id: 'cash', label: 'Наличными при получении' },
@@ -48,11 +47,12 @@ export const REQUEST_STATUSES = [
 export type RequestStatus = (typeof REQUEST_STATUSES)[number]['id']
 
 /** Как клиенту удобнее, чтобы с ним связались */
-export const CONTACT_METHODS = ['phone', 'telegram', 'viber', 'whatsapp'] as const
+export const CONTACT_METHODS = ['phone', 'viber', 'whatsapp'] as const
 
 export type ContactMethod = (typeof CONTACT_METHODS)[number]
 
-export const CONTACT_LABELS: Record<ContactMethod, string> = {
+// Telegram — для старых заявок, на сайте его больше нет
+export const CONTACT_LABELS: Record<string, string> = {
   phone: 'Звонок',
   telegram: 'Telegram',
   viber: 'Viber',
