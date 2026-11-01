@@ -51,9 +51,13 @@ export function ProductVisual({
       {form === 'tablets' && <Carton t={t} {...label} />}
       {form === 'powder' && <Tub t={t} {...label} />}
       {form === 'liquid' && <Dropper t={t} {...label} />}
+      {/* Новая форма из Админка → Фильтры, для которой нет своего рисунка, — нейтральная коробка */}
+      {!DRAWN_FORMS.has(form) && <Carton t={t} {...label} />}
     </div>
   )
 }
+
+const DRAWN_FORMS = new Set(['vials', 'capsules', 'tablets', 'powder', 'liquid'])
 
 function shorten(s: string) {
   return s.length > 26 ? `${s.slice(0, 24).trim()}…` : s

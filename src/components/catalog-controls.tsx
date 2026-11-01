@@ -4,10 +4,13 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition, type ReactNode } from 'react'
 import { useI18n } from '@/i18n/client'
 import { catalogHref, type Filters } from '@/lib/catalog'
-import { FORMS, PURPOSES, SORTS, type SortId } from '@/lib/constants'
+import { SORTS, type SortId } from '@/lib/constants'
 import { IconClose, IconSettings } from './icons'
 import { SelectMenu } from './select-menu'
 import { checkbox, input } from './ui'
+
+/** Варианты фильтра из Админка → Фильтры (уже на языке страницы) */
+export type FilterChoice = { slug: string; name: string }
 
 type Facets = { forms: Record<string, number>; purposes: Record<string, number>; minPrice: number; maxPrice: number }
 
@@ -15,11 +18,13 @@ type Facets = { forms: Record<string, number>; purposes: Record<string, number>;
 export function CatalogControls({
   filters,
   facets,
+  options,
   total,
   children,
 }: {
   filters: Filters
   facets: Facets
+  options: { forms: FilterChoice[]; purposes: FilterChoice[] }
   total: number
   children: ReactNode
 }) {
@@ -42,11 +47,11 @@ export function CatalogControls({
   const chips: { label: string; clear: Partial<Filters> }[] = [
     ...(filters.q ? [{ label: `«${filters.q}»`, clear: { q: '' } }] : []),
     ...filters.forms.map((id) => ({
-      label: t.forms[id as keyof typeof t.forms] ?? id,
+      label: options.forms.find((f) => f.slug === id)?.name ?? id,
       clear: { forms: filters.forms.filter((x) => x !== id) },
     })),
     ...filters.purposes.map((id) => ({
-      label: t.purposes[id as keyof typeof t.purposes] ?? id,
+      label: options.purposes.find((p) => p.slug === id)?.name ?? id,
       clear: { purposes: filters.purposes.filter((x) => x !== id) },
     })),
     ...(filters.min !== null ? [{ label: fmt(t.catalog.chipFrom, { n: filters.min }), clear: { min: null } }] : []),
@@ -57,25 +62,25 @@ export function CatalogControls({
   const panel = (
     <div className="flex flex-col gap-8">
       <FilterGroup title={t.catalog.form}>
-        {FORMS.filter((f) => facets.forms[f.id] || filters.forms.includes(f.id)).map((f) => (
+        {options.forms.filter((f) => facets.forms[f.slug] || filters.forms.includes(f.slug)).map((f) => (
           <Check
-            key={f.id}
-            label={t.forms[f.id]}
-            count={facets.forms[f.id] ?? 0}
-            checked={filters.forms.includes(f.id)}
-            onChange={() => toggle('forms', f.id)}
+            key={f.slug}
+            label={f.name}
+            count={facets.forms[f.slug] ?? 0}
+            checked={filters.forms.includes(f.slug)}
+            onChange={() => toggle('forms', f.slug)}
           />
         ))}
       </FilterGroup>
 
       <FilterGroup title={t.catalog.purpose}>
-        {PURPOSES.filter((p) => facets.purposes[p.id] || filters.purposes.includes(p.id)).map((p) => (
+        {options.purposes.filter((p) => facets.purposes[p.slug] || filters.purposes.includes(p.slug)).map((p) => (
           <Check
-            key={p.id}
-            label={t.purposes[p.id]}
-            count={facets.purposes[p.id] ?? 0}
-            checked={filters.purposes.includes(p.id)}
-            onChange={() => toggle('purposes', p.id)}
+            key={p.slug}
+            label={p.name}
+            count={facets.purposes[p.slug] ?? 0}
+            checked={filters.purposes.includes(p.slug)}
+            onChange={() => toggle('purposes', p.slug)}
           />
         ))}
       </FilterGroup>
@@ -177,6 +182,8 @@ export function CatalogControls({
 }
 
 function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+  // Нет ни одного варианта (например, у товаров категории не отмечено назначение) — группу не показываем
+  if (Array.isArray(children) && children.length === 0) return null
   return (
     <fieldset>
       <legend className="mb-3 text-[15px] font-semibold">{title}</legend>

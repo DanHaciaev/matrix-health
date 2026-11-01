@@ -2,12 +2,13 @@
 
 import { refresh, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { DOC_TYPES, FORMS, ORDER_STATUSES, PURPOSES } from '../constants'
+import { DOC_TYPES, ORDER_STATUSES } from '../constants'
 import { CATALOG_TAG, SETTINGS_TAG } from '../data'
 import { slugify } from '../format'
 import { MEDIA_BUCKET, isSupabaseConfigured } from '../supabase/env'
 import { createSupabaseServer } from '../supabase/server'
 import { requireAdmin } from './auth'
+import { getAdminFilters } from './filters'
 
 export type FormState = { ok?: boolean; message?: string; error?: string }
 
@@ -56,6 +57,8 @@ function translationsFrom(fd: FormData, textFields: string[], rowFields: [field:
 }
 
 function dbError(message: string) {
+  if (/filter_options/i.test(message) && /does not exist|schema cache/i.test(message))
+    return 'В базе нет таблицы фильтров. Выполните supabase/filters.sql в Supabase → SQL Editor.'
   if (/translations/i.test(message)) return 'В базе нет поля для переводов. Выполните supabase/i18n.sql в Supabase → SQL Editor.'
   if (/duplicate key.*slug/i.test(message)) return 'Такой адрес (slug) уже занят — измените его.'
   if (/row-level security/i.test(message)) return 'Нет прав. Проверьте, что ваш пользователь добавлен в таблицу admins.'
@@ -115,6 +118,9 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
   if (!slug) return { error: 'Укажите адрес страницы латиницей' }
 
   const form = str(fd, 'form')
+  const { filters } = await getAdminFilters(sb)
+  const formSlugs = filters.filter((f) => f.kind === 'form').map((f) => f.slug)
+  const purposeSlugs = filters.filter((f) => f.kind === 'purpose').map((f) => f.slug)
   const price = money(fd, 'price')
   if (price === null) return { error: 'Укажите цену' }
 
@@ -145,8 +151,8 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
     name,
     slug,
     category_id: strOrNull(fd, 'category_id'),
-    form: FORMS.some((f) => f.id === form) ? form : 'capsules',
-    purposes: fd.getAll('purposes').map(String).filter((p) => PURPOSES.some((x) => x.id === p)),
+    form: formSlugs.includes(form) ? form : (formSlugs[0] ?? 'vials'),
+    purposes: fd.getAll('purposes').map(String).filter((p) => purposeSlugs.includes(p)),
     pack: strOrNull(fd, 'pack'),
     unit_label: strOrNull(fd, 'unit_label'),
     short_description: strOrNull(fd, 'short_description'),
@@ -305,6 +311,61 @@ export async function deleteCategory(id: string) {
   await sb.from('categories').delete().eq('id', id)
   updateTag(CATALOG_TAG)
   refresh()
+}
+
+// ——— Фильтры (назначения и формы выпуска) ———
+
+export async function saveFilterOption(_prev: FormState, fd: FormData): Promise<FormState> {
+  const { sb } = await requireAdmin()
+  const id = str(fd, 'id')
+  const kind = str(fd, 'kind') === 'form' ? 'form' : 'purpose'
+  const name = str(fd, 'name')
+  if (!name) return { error: 'Укажите название на русском' }
+
+  const row = {
+    name,
+    sort: int(fd, 'sort'),
+    is_visible: bool(fd, 'is_visible'),
+    translations: translationsFrom(fd, ['name']),
+  }
+
+  // Адрес (slug) задаётся один раз: на него ссылаются товары, поэтому у существующих вариантов он не меняется
+  const res = id
+    ? await sb.from('filter_options').update(row).eq('id', id)
+    : await sb.from('filter_options').insert({ ...row, kind, slug: slugify(str(fd, 'slug') || name) })
+  if (res.error) return { error: dbError(res.error.message) }
+
+  updateTag(CATALOG_TAG)
+  refresh()
+  return { ok: true, message: id ? 'Сохранено' : 'Вариант добавлен' }
+}
+
+/** Удаляет вариант фильтра. Возвращает текст ошибки или null. */
+export async function deleteFilterOption(id: string): Promise<string | null> {
+  const { sb } = await requireAdmin()
+  const { data: option } = await sb.from('filter_options').select('kind, slug').eq('id', id).maybeSingle()
+  if (!option) return null
+
+  if (option.kind === 'form') {
+    const { count } = await sb.from('products').select('id', { count: 'exact', head: true }).eq('form', option.slug)
+    if (count) return `Эта форма выпуска стоит у товаров: ${count}. Сначала смените её у них.`
+  } else {
+    // Убираем назначение у всех товаров, где оно было отмечено
+    const { data: products } = await sb.from('products').select('id, purposes').contains('purposes', [option.slug])
+    for (const p of products ?? []) {
+      await sb
+        .from('products')
+        .update({ purposes: (p.purposes as string[]).filter((x) => x !== option.slug) })
+        .eq('id', p.id)
+    }
+  }
+
+  const { error } = await sb.from('filter_options').delete().eq('id', id)
+  if (error) return dbError(error.message)
+
+  updateTag(CATALOG_TAG)
+  refresh()
+  return null
 }
 
 // ——— Заказы ———

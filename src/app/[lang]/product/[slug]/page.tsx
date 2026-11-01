@@ -10,6 +10,7 @@ import { ProductCard } from '@/components/product-card'
 import { ProductGallery } from '@/components/product-gallery'
 import { wrap } from '@/components/ui'
 import { getI18n } from '@/i18n/server'
+import { filterName } from '@/lib/filters'
 import { getShop, getShopProduct } from '@/lib/shop'
 
 export async function generateMetadata(props: PageProps<'/[lang]/product/[slug]'>): Promise<Metadata> {
@@ -67,7 +68,7 @@ async function ProductView({ params }: Pick<PageProps<'/[lang]/product/[slug]'>,
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-mute">
             <span>{p.category?.name}</span>
             <span className="text-line-strong">·</span>
-            <span>{t.forms[p.form]}</span>
+            <span>{filterName(catalog.filters, 'form', p.form)}</span>
             {p.is_new && <span className="font-medium text-signal">{t.product.new}</span>}
           </div>
 
@@ -125,7 +126,7 @@ async function ProductView({ params }: Pick<PageProps<'/[lang]/product/[slug]'>,
               {p.purposes.length > 0 && (
                 <div className="grid grid-cols-[150px_1fr] gap-4 border-b border-line py-3 sm:grid-cols-[180px_1fr]">
                   <dt className="text-mute">{t.product.purpose}</dt>
-                  <dd>{p.purposes.map((x) => t.purposes[x as keyof typeof t.purposes] ?? x).join(', ')}</dd>
+                  <dd>{p.purposes.map((x) => filterName(catalog.filters, 'purpose', x)).join(', ')}</dd>
                 </div>
               )}
             </dl>

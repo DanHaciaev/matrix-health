@@ -25,8 +25,7 @@ create table if not exists public.products (
   slug              text not null unique check (slug ~ '^[a-z0-9-]+$'),
   name              text not null,
   category_id       uuid references public.categories (id) on delete set null,
-  form              text not null default 'capsules'
-                    check (form in ('tablets', 'capsules', 'vials', 'powder', 'liquid')),
+  form              text not null default 'capsules',   -- slug из filter_options (kind = 'form'), см. filters.sql
   purposes          text[] not null default '{}',
   pack              text,            -- «Флакон · 5 мг», «90 капсул»
   unit_label        text,            -- «за 1 флакон»

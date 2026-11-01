@@ -202,6 +202,12 @@ export const IconLogout = (p: P) => (
   </Svg>
 )
 
+export const IconFilter = (p: P) => (
+  <Svg {...p}>
+    <path d="M4 5h16l-6 7.5V19l-4 1.5v-8L4 5Z" />
+  </Svg>
+)
+
 export const IconGlobe = (p: P) => (
   <Svg {...p}>
     <circle cx="12" cy="12" r="8.5" />

@@ -1,15 +1,16 @@
 import 'server-only'
 import { cacheLife, cacheTag } from 'next/cache'
+import { DEFAULT_FILTERS } from './filters'
 import { createPublicClient } from './supabase/public'
 import { isSupabaseConfigured } from './supabase/env'
-import type { Catalog, Category, Certificate, Product, Settings, Variant } from './types'
+import type { Catalog, Category, Certificate, FilterOption, Product, Settings, Variant } from './types'
 
 // Все публичные данные магазина — одним кешируемым запросом, только из Supabase.
 // Правки из админки видны сразу (updateTag), правки напрямую в Supabase — примерно через минуту.
 export const CATALOG_TAG = 'catalog'
 export const SETTINGS_TAG = 'settings'
 
-const EMPTY_CATALOG: Catalog = { products: [], categories: [], certificates: [] }
+const EMPTY_CATALOG: Catalog = { products: [], categories: [], certificates: [], filters: DEFAULT_FILTERS }
 
 // Пустые настройки на случай, если база не подключена или строка settings удалена
 export const EMPTY_SETTINGS: Settings = {
@@ -65,7 +66,7 @@ export async function getCatalog(): Promise<Catalog> {
   if (!isSupabaseConfigured) return EMPTY_CATALOG
 
   const sb = createPublicClient()
-  const [products, categories, certificates] = await Promise.all([
+  const [products, categories, certificates, filters] = await Promise.all([
     sb
       .from('products')
       .select('*, category:categories(*), variants:product_variants(*)')
@@ -78,6 +79,7 @@ export async function getCatalog(): Promise<Catalog> {
       .select('*, product:products(*, category:categories(slug))')
       .eq('is_published', true)
       .order('issued_at', { ascending: false, nullsFirst: false }),
+    sb.from('filter_options').select('*').order('sort').order('name'),
   ])
 
   const error = products.error ?? categories.error ?? certificates.error
@@ -87,6 +89,8 @@ export async function getCatalog(): Promise<Catalog> {
     products: (products.data ?? []).map(normalizeProduct),
     categories: (categories.data ?? []) as Category[],
     certificates: (certificates.data ?? []) as Certificate[],
+    // Пока не запущен supabase/filters.sql, таблицы нет — берём встроенный список
+    filters: filters.error ? DEFAULT_FILTERS : ((filters.data ?? []) as FilterOption[]),
   }
 }
 

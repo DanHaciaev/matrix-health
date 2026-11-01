@@ -1,5 +1,5 @@
 import { localePath, type Lang } from '@/i18n/config'
-import { FORMS, PAGE_SIZE, PURPOSES, SORTS, type SortId } from './constants'
+import { PAGE_SIZE, SORTS, type SortId } from './constants'
 import type { Product } from './types'
 
 export type Filters = {
@@ -19,6 +19,7 @@ type RawParams = Record<string, string | string[] | undefined>
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? ''
 const list = (v: string | string[] | undefined) =>
   (Array.isArray(v) ? v : (v ?? '').split(',')).map((s) => s.trim()).filter(Boolean)
+const isSlug = (v: string) => /^[a-z0-9-]{1,60}$/.test(v)
 const price = (v: string) => {
   const n = Number(v.replace(',', '.'))
   return v && Number.isFinite(n) && n >= 0 ? n : null
@@ -31,8 +32,9 @@ export function parseFilters(params: RawParams): Filters {
   return {
     cat: first(params.cat) || null,
     q: first(params.q).trim().slice(0, 80),
-    forms: list(params.form).filter((f) => FORMS.some((x) => x.id === f)),
-    purposes: list(params.for).filter((p) => PURPOSES.some((x) => x.id === p)),
+    // Варианты фильтров редактируются в админке, поэтому проверяем только формат slug
+    forms: list(params.form).filter(isSlug),
+    purposes: list(params.for).filter(isSlug),
     min: price(first(params.min)),
     max: price(first(params.max)),
     stock: first(params.stock) === '1',

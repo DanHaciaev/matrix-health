@@ -3,9 +3,8 @@
 import Link from 'next/link'
 import { startTransition, useActionState, useState, type ReactNode } from 'react'
 import { deleteProduct, saveProduct } from '@/lib/admin/actions'
-import { FORMS, PURPOSES } from '@/lib/constants'
 import { slugify } from '@/lib/format'
-import type { Category, Product, ProductText } from '@/lib/types'
+import type { Category, FilterOption, Product, ProductText } from '@/lib/types'
 import { IconExternal } from '../icons'
 import { btn, checkbox, input, label, textarea } from '../ui'
 import { DeleteButton, FormMessage } from './controls'
@@ -20,8 +19,20 @@ const DEFAULT_SPECS = ['Форма выпуска', 'Количество', 'П�
 
 const DEFAULT_WARNING = 'Не является лекарственным средством. Перед применением проконсультируйтесь со специалистом.'
 
-export function ProductForm({ product, categories }: { product: Product | null; categories: Category[] }) {
+export function ProductForm({
+  product,
+  categories,
+  filters,
+}: {
+  product: Product | null
+  categories: Category[]
+  /** Варианты из Админка → Фильтры (включая скрытые) */
+  filters: FilterOption[]
+}) {
   const p = product
+  const forms = filters.filter((f) => f.kind === 'form')
+  const purposes = filters.filter((f) => f.kind === 'purpose')
+  const defaultForm = p?.form ?? forms.find((f) => f.slug === 'vials')?.slug ?? forms[0]?.slug
   const [state, action, pending] = useActionState(saveProduct, {})
   const [name, setName] = useState(p?.name ?? '')
   const [slug, setSlug] = useState(p?.slug ?? '')
@@ -177,11 +188,11 @@ export function ProductForm({ product, categories }: { product: Product | null; 
             <fieldset>
               <legend className={label}>Форма выпуска</legend>
               <div className="flex flex-wrap gap-1.5">
-                {FORMS.map((f) => (
-                  <label key={f.id} className="cursor-pointer">
-                    <input type="radio" name="form" value={f.id} defaultChecked={(p?.form ?? 'capsules') === f.id} className="peer sr-only" />
+                {forms.map((f) => (
+                  <label key={f.slug} className="cursor-pointer" title={f.is_visible ? undefined : 'Скрыт в фильтрах сайта'}>
+                    <input type="radio" name="form" value={f.slug} defaultChecked={defaultForm === f.slug} className="peer sr-only" />
                     <span className="block rounded-md border border-line px-3 py-1.5 text-sm peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-brand">
-                      {f.label}
+                      {f.name}
                     </span>
                   </label>
                 ))}
@@ -190,14 +201,19 @@ export function ProductForm({ product, categories }: { product: Product | null; 
             <fieldset>
               <legend className={label}>Назначение</legend>
               <div className="space-y-2">
-                {PURPOSES.map((x) => (
-                  <label key={x.id} className="flex cursor-pointer items-center gap-2.5 text-[15px]">
-                    <input type="checkbox" name="purposes" value={x.id} defaultChecked={p?.purposes.includes(x.id)} className={checkbox} />
-                    {x.label}
+                {purposes.map((x) => (
+                  <label key={x.slug} className="flex cursor-pointer items-center gap-2.5 text-[15px]">
+                    <input type="checkbox" name="purposes" value={x.slug} defaultChecked={p?.purposes.includes(x.slug)} className={checkbox} />
+                    {x.name}
+                    {!x.is_visible && <span className="text-xs text-mute">· скрыт на сайте</span>}
                   </label>
                 ))}
               </div>
             </fieldset>
+            <Link href="/admin/filters" target="_blank" className="inline-flex items-center gap-1.5 text-sm text-brand hover:underline">
+              <IconExternal size={14} /> Нет нужного варианта? Добавьте в «Фильтры»
+            </Link>
+            <p className="-mt-3 text-xs text-mute">Откроется в новой вкладке — эта форма не сбросится. После добавления обновите страницу.</p>
           </div>
         </Box>
 

@@ -4,6 +4,7 @@ import { AdminTitle } from '@/components/admin/parts'
 import { ProductForm } from '@/components/admin/product-form'
 import { IconArrowLeft } from '@/components/icons'
 import { requireAdmin } from '@/lib/admin/auth'
+import { getAdminFilters } from '@/lib/admin/filters'
 import { normalizeProduct } from '@/lib/data'
 import type { Category } from '@/lib/types'
 
@@ -13,9 +14,10 @@ export default async function EditProductPage(props: PageProps<'/admin/products/
   const { sb } = await requireAdmin()
   const [{ id }, { saved }] = await Promise.all([props.params, props.searchParams])
 
-  const [{ data }, { data: cats }] = await Promise.all([
+  const [{ data }, { data: cats }, { filters }] = await Promise.all([
     sb.from('products').select('*, category:categories(*), variants:product_variants(*)').eq('id', id).maybeSingle(),
     sb.from('categories').select('*').order('sort'),
+    getAdminFilters(sb),
   ])
   if (!data) notFound()
   const product = normalizeProduct(data)
@@ -33,7 +35,7 @@ export default async function EditProductPage(props: PageProps<'/admin/products/
         </p>
       )}
 
-      <ProductForm key={product.updated_at ?? product.id} product={product} categories={(cats ?? []) as Category[]} />
+      <ProductForm key={product.updated_at ?? product.id} product={product} categories={(cats ?? []) as Category[]} filters={filters} />
     </>
   )
 }

@@ -46,6 +46,13 @@ async function CatalogView({ searchParams }: Pick<PageProps<'/[lang]/catalog'>, 
     maxPrice: scopeAll.length ? Math.ceil(Math.max(...scopeAll.map(displayPrice))) : 0,
   }
 
+  // Варианты фильтров из Админка → Фильтры; скрытые там не показываем
+  const visible = catalog.filters.filter((f) => f.is_visible)
+  const options = {
+    forms: visible.filter((f) => f.kind === 'form').map(({ slug, name }) => ({ slug, name })),
+    purposes: visible.filter((f) => f.kind === 'purpose').map(({ slug, name }) => ({ slug, name })),
+  }
+
   const title = category?.name ?? (filters.q ? fmt(t.catalog.searchTitle, { q: filters.q }) : t.catalog.title)
 
   return (
@@ -74,7 +81,7 @@ async function CatalogView({ searchParams }: Pick<PageProps<'/[lang]/catalog'>, 
         ))}
       </nav>
 
-      <CatalogControls filters={filters} facets={facets} total={result.total}>
+      <CatalogControls filters={filters} facets={facets} options={options} total={result.total}>
         {result.items.length > 0 ? (
           <>
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 2xl:grid-cols-4">

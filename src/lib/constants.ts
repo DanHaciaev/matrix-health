@@ -1,21 +1,4 @@
-export const FORMS = [
-  { id: 'tablets', label: 'Таблетки' },
-  { id: 'capsules', label: 'Капсулы' },
-  { id: 'vials', label: 'Флаконы' },
-  { id: 'powder', label: 'Порошок' },
-  { id: 'liquid', label: 'Жидкость' },
-] as const
-
-export type FormId = (typeof FORMS)[number]['id']
-
-export const PURPOSES = [
-  { id: 'immunity', label: 'Иммунитет' },
-  { id: 'skin-joints', label: 'Кожа и суставы' },
-  { id: 'energy-sleep', label: 'Энергия и сон' },
-  { id: 'recovery', label: 'Восстановление' },
-  { id: 'heart', label: 'Сердце и сосуды' },
-  { id: 'metabolism', label: 'Метаболизм и вес' },
-] as const
+// Назначения и формы выпуска для фильтров — в базе (таблица filter_options, Админка → Фильтры)
 
 export const SORTS = [
   { id: 'popular', label: 'Сначала популярные' },
@@ -55,14 +38,6 @@ export const PAYMENT_METHODS = [
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]['id']
 
 export const PAGE_SIZE = 12
-
-export function formLabel(id: string) {
-  return FORMS.find((f) => f.id === id)?.label ?? id
-}
-
-export function purposeLabel(id: string) {
-  return PURPOSES.find((p) => p.id === id)?.label ?? id
-}
 
 export function statusMeta(id: string) {
   return ORDER_STATUSES.find((s) => s.id === id) ?? ORDER_STATUSES[0]

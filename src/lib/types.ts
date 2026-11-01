@@ -1,4 +1,4 @@
-import type { DeliveryMethod, FormId, OrderStatus, PaymentMethod } from './constants'
+import type { DeliveryMethod, OrderStatus, PaymentMethod } from './constants'
 
 // Переводы текстов: русский лежит в обычных колонках, английский и румынский — здесь
 export type TranslatedLang = 'en' | 'ro'
@@ -33,7 +33,8 @@ export type Product = {
   name: string
   category_id: string | null
   category: Category | null
-  form: FormId
+  /** slug формы выпуска из filter_options */
+  form: string
   purposes: string[]
   pack: string | null
   unit_label: string | null
@@ -134,8 +135,20 @@ export type Order = {
   items?: OrderItem[]
 }
 
+/** Вариант фильтра каталога: назначение или форма выпуска (таблица filter_options) */
+export type FilterOption = {
+  id: string
+  kind: 'purpose' | 'form'
+  slug: string
+  name: string
+  translations?: Translations<{ name: string }>
+  sort: number
+  is_visible: boolean
+}
+
 export type Catalog = {
   products: Product[]
   categories: Category[]
   certificates: Certificate[]
+  filters: FilterOption[]
 }

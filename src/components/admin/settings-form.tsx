@@ -25,53 +25,57 @@ export function SettingsForm({ settings: s }: { settings: Settings }) {
         const fd = new FormData(e.currentTarget)
         startTransition(() => action(fd))
       }}
-      className="max-w-3xl space-y-6"
+      className="grid items-start gap-6 xl:grid-cols-2"
     >
-      <Group title="Магазин" note="Название показывается в шапке, подвале и заголовках страниц.">
-        <F label="Название">
-          <input name="store_name" required defaultValue={s.store_name} className={input} />
-        </F>
-        <F label="Слоган" wide>
-          <input name="tagline" defaultValue={s.tagline ?? ''} className={input} />
-        </F>
-      </Group>
+      {/* Левая колонка — основные настройки (на русском) */}
+      <div className="space-y-6">
+        <Group title="Магазин" note="Название показывается в шапке, подвале и заголовках страниц.">
+          <F label="Название">
+            <input name="store_name" required defaultValue={s.store_name} className={input} />
+          </F>
+          <F label="Слоган" wide>
+            <input name="tagline" defaultValue={s.tagline ?? ''} className={input} />
+          </F>
+        </Group>
 
-      <Group title="Контакты">
-        <F label="Телефон">
-          <input name="phone" defaultValue={s.phone ?? ''} placeholder="+373 …" className={input} />
-        </F>
-        <F label="Email">
-          <input name="email" type="email" defaultValue={s.email ?? ''} className={input} />
-        </F>
-        <F label="Telegram (ссылка)">
-          <input name="telegram" defaultValue={s.telegram ?? ''} placeholder="https://t.me/…" className={input} />
-        </F>
-        <F label="Часы работы">
-          <input name="working_hours" defaultValue={s.working_hours ?? ''} className={input} />
-        </F>
-        <F label="Адрес / пункт самовывоза" wide>
-          <input name="address" defaultValue={s.address ?? ''} className={input} />
-        </F>
-      </Group>
+        <Group title="Контакты">
+          <F label="Телефон">
+            <input name="phone" defaultValue={s.phone ?? ''} placeholder="+373 …" className={input} />
+          </F>
+          <F label="Email">
+            <input name="email" type="email" defaultValue={s.email ?? ''} className={input} />
+          </F>
+          <F label="Telegram (ссылка)">
+            <input name="telegram" defaultValue={s.telegram ?? ''} placeholder="https://t.me/…" className={input} />
+          </F>
+          <F label="Часы работы">
+            <input name="working_hours" defaultValue={s.working_hours ?? ''} className={input} />
+          </F>
+          <F label="Адрес / пункт самовывоза" wide>
+            <input name="address" defaultValue={s.address ?? ''} className={input} />
+          </F>
+        </Group>
 
-      <Group title="Доставка и оплата" note="Стоимость доставки считается автоматически в корзине и при оформлении заказа.">
-        <F label="Стоимость доставки, €">
-          <input name="delivery_cost" inputMode="decimal" defaultValue={s.delivery_cost} className={input} />
-        </F>
-        <F label="Бесплатная доставка от, €">
-          <input name="free_delivery_from" inputMode="decimal" defaultValue={s.free_delivery_from} className={input} />
-        </F>
-        <F label="Дополнительно о доставке" wide>
-          <textarea name="delivery_info" rows={3} defaultValue={s.delivery_info ?? ''} className={textarea} />
-        </F>
-        <F label="Способы оплаты (свой текст вместо стандартного списка)" wide>
-          <textarea name="payment_info" rows={3} defaultValue={s.payment_info ?? ''} className={textarea} />
-        </F>
-      </Group>
+        <Group title="Доставка и оплата" note="Стоимость доставки считается автоматически в корзине и при оформлении заказа.">
+          <F label="Стоимость доставки, €">
+            <input name="delivery_cost" inputMode="decimal" defaultValue={s.delivery_cost} className={input} />
+          </F>
+          <F label="Бесплатная доставка от, €">
+            <input name="free_delivery_from" inputMode="decimal" defaultValue={s.free_delivery_from} className={input} />
+          </F>
+          <F label="Дополнительно о доставке" wide>
+            <textarea name="delivery_info" rows={3} defaultValue={s.delivery_info ?? ''} className={textarea} />
+          </F>
+          <F label="Способы оплаты (свой текст вместо стандартного списка)" wide>
+            <textarea name="payment_info" rows={3} defaultValue={s.payment_info ?? ''} className={textarea} />
+          </F>
+        </Group>
+      </div>
 
+      {/* Правая колонка — те же тексты для английской и румынской версий */}
       <Group
         title="Переводы: English и Română"
-        note="Тексты выше — на русском. Здесь — для английской и румынской версий сайта. Пустое поле заменится русским текстом."
+        note="Тексты слева — на русском. Здесь — для английской и румынской версий сайта. Пустое поле заменится русским текстом."
       >
         {TRANSLATED.map((f) => (
           <div key={f.key} className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
@@ -88,7 +92,7 @@ export function SettingsForm({ settings: s }: { settings: Settings }) {
         ))}
       </Group>
 
-      <div className="sticky bottom-0 -mx-4 flex items-center gap-4 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0">
+      <div className="sticky bottom-0 -mx-4 flex items-center gap-4 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0 xl:col-span-2">
         <button type="submit" disabled={pending} className={btn.smallPrimary}>
           {pending ? 'Сохраняем…' : 'Сохранить настройки'}
         </button>
