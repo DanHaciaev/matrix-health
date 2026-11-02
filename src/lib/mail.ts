@@ -43,6 +43,8 @@ export type OrderEmail = {
   lang: string
   number: number
   store: string
+  /** Полный адрес знака логотипа (https://…/brand/mark.png); почтовые программы не видят относительные ссылки */
+  logoUrl: string | null
   phone: string | null
   customer: { name: string; city: string; address: string; payment: 'cash' | 'card' | 'transfer'; comment: string }
   lines: { name: string; variant: string | null; qty: number; price: number }[]
@@ -82,10 +84,13 @@ export function orderEmail(o: OrderEmail) {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7fc;padding:24px 12px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;">
-        <tr><td style="background:#0b2386;padding:24px 28px;color:#ffffff;">
-          <div style="font-size:13px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.75;">${esc(o.store)}</div>
-          <div style="margin-top:6px;font-size:22px;font-weight:700;">${fmt(e.order, { n: o.number })}</div>
+        <tr><td style="background:#ffffff;padding:20px 28px;">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+            ${o.logoUrl ? `<td style="padding-right:12px;"><img src="${esc(o.logoUrl)}" width="44" height="40" alt="" style="display:block;border:0;"></td>` : ''}
+            <td style="font-family:Georgia,'Times New Roman',serif;font-size:21px;letter-spacing:0.04em;text-transform:uppercase;color:#0b2386;">${esc(o.store)}</td>
+          </tr></table>
         </td></tr>
+        <tr><td style="background:#0b2386;padding:18px 28px;color:#ffffff;font-size:22px;font-weight:700;">${fmt(e.order, { n: o.number })}</td></tr>
         <tr><td style="padding:28px;">
           <p style="margin:0 0 6px;font-size:17px;font-weight:600;color:#0f1a44;">${esc(fmt(e.greeting, { name: o.customer.name }))}</p>
           <p style="margin:0 0 24px;color:#3a4468;">${e.intro}</p>
@@ -138,4 +143,9 @@ export function orderEmail(o: OrderEmail) {
     .join('\n')
 
   return { subject, html, text }
+}
+
+/** Адрес знака логотипа для письма. С локального сервера картинку получатель не увидит — тогда без неё. */
+export function mailLogoUrl(origin: string | null) {
+  return origin && !/\/\/(localhost|127\.)/.test(origin) ? `${origin}/brand/mark.png` : null
 }

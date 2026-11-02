@@ -6,7 +6,7 @@ import { PAYMENT_METHODS } from '@/lib/constants'
 import { DEFAULT_LANG, hasLocale, type Lang } from '@/i18n/config'
 import { getCatalog, getSettings } from '@/lib/data'
 import { localizeProduct } from '@/lib/localize'
-import { mailConfig, orderEmail, sendMail } from '@/lib/mail'
+import { mailConfig, mailLogoUrl, orderEmail, sendMail } from '@/lib/mail'
 import { isSupabaseConfigured } from '@/lib/supabase/env'
 import { createPublicClient } from '@/lib/supabase/public'
 import { orderMessage, sendTelegram, siteOrigin, type OrderNotice } from '@/lib/telegram'
@@ -105,6 +105,7 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
         lang: buyerLang,
         number,
         store: settings.store_name,
+        logoUrl: mailLogoUrl(origin),
         phone: settings.phone,
         customer: {
           name: customer.customer_name,
