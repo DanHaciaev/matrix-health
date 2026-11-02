@@ -21,12 +21,15 @@ export function CatalogControls({
   options,
   total,
   children,
+  footer,
 }: {
   filters: Filters
   facets: Facets
   options: { forms: FilterChoice[]; purposes: FilterChoice[] }
   total: number
   children: ReactNode
+  /** Под сеткой товаров (страницы). Отдельной строкой — чтобы липкие фильтры останавливались на последнем ряду товаров */
+  footer?: ReactNode
 }) {
   const router = useRouter()
   const { t, lang, fmt } = useI18n()
@@ -106,10 +109,8 @@ export function CatalogControls({
     // Две строки: сверху — заголовок фильтров и панель сортировки, снизу — фильтры и товары.
     // Так карточка фильтров и сетка товаров начинаются на одной линии.
     <div className="grid gap-x-8 gap-y-5 lg:grid-cols-[272px_1fr]">
-      <div className="hidden items-center justify-between gap-3 px-1 lg:flex">
-        <span className="flex items-center gap-2 text-[15px] font-semibold">
-          <IconSettings size={16} /> {t.catalog.filters}
-        </span>
+      {/* Над фильтрами — только «Сбросить всё», когда что-то выбрано; пустая ячейка держит выравнивание */}
+      <div className="hidden items-center px-1 lg:flex">
         {chips.length > 0 && (
           <button
             type="button"
@@ -164,12 +165,17 @@ export function CatalogControls({
         />
       </div>
 
-      {/* Под шапкой сайта (она прилипает сверху) — чтобы фильтры были под рукой при прокрутке */}
-      <aside className="hidden h-fit rounded-[28px] bg-surface p-6 ring-1 ring-line lg:sticky lg:top-32 lg:block">{panel}</aside>
+      {/* Фильтры прилипают под шапкой при прокрутке. Обёртка высотой ровно с сетку товаров:
+          липкий блок не выходит за родителя, поэтому останавливается на последнем ряду товаров */}
+      <div className="hidden lg:block">
+        <aside className="sticky top-32 rounded-[28px] bg-surface p-6 ring-1 ring-line">{panel}</aside>
+      </div>
 
       <div className={`min-w-0 transition-opacity duration-200 ${pending ? 'pointer-events-none opacity-50' : ''}`} aria-busy={pending}>
         {children}
       </div>
+
+      {footer && <div className="min-w-0 lg:col-start-2">{footer}</div>}
 
       {drawer && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label={t.catalog.filters}>

@@ -1,153 +1,184 @@
-# Магазин: пептиды, БАДы, таблетки
+# Health Matrix
 
-Next.js 16 (App Router, Cache Components) + TypeScript + Tailwind CSS 4 + Supabase.
-Без отдельных CSS-файлов и скриптов: вся вёрстка — классы Tailwind в компонентах.
+An online store for peptides, supplements and medicinal herbs, built for a client in Moldova.
+It runs in three languages and has a full admin panel. New orders and consultation requests go straight to the shop owner in Telegram.
 
-## Быстрый старт
+**Live site: [matrix-health-theta.vercel.app](https://matrix-health-theta.vercel.app)**
+
+![Home page](docs/screenshots/home.webp)
+
+## Screenshots
+
+| Catalog with filters | Product page |
+|---|---|
+| ![Catalog](docs/screenshots/catalog.webp) | ![Product](docs/screenshots/product.webp) |
+
+| Specialist consultation | About peptides |
+|---|---|
+| ![Consultation](docs/screenshots/consultation.webp) | ![About peptides](docs/screenshots/peptides.webp) |
+
+| Checkout | Home: about peptides block |
+|---|---|
+| ![Checkout](docs/screenshots/checkout.webp) | ![Home, about peptides](docs/screenshots/home-peptides.webp) |
+
+| Mobile: home | Mobile: menu | Mobile: catalog | Order confirmation email |
+|---|---|---|---|
+| ![Mobile home](docs/screenshots/mobile-home.webp) | ![Mobile menu](docs/screenshots/mobile-menu.webp) | ![Mobile catalog](docs/screenshots/mobile-catalog.webp) | ![Email](docs/screenshots/email.webp) |
+
+## Features
+
+### Storefront
+
+- **Catalog**:
+  - categories: peptides, Agenyz, medicinal herbs;
+  - filters by form, purpose, price and stock, with sorting and search;
+  - on desktop the filter panel stays in view while scrolling.
+- **Product pages** with dosage variants, composition, usage, warnings and the certificates for each batch.
+- **Certificates registry** with search by batch (LOT) number.
+- **Cart and checkout**:
+  - delivery by the shop's own courier;
+  - payment in cash on delivery or by bank card transfer;
+  - prices are calculated in the database, not in the browser.
+- **Specialist services**: a one-time peptide consultation and monthly course support, with a request form.
+- **"What are peptides"** page: a short, factual explainer that links to products in the catalog.
+- **Three languages**: English (default), Romanian and Russian.
+  - The language is not part of the URL, it is remembered in a cookie.
+  - On the first visit it is detected from the browser.
+- **Fully responsive**, from 390 px phones to wide desktops.
+
+### Admin panel (`/admin`, in Russian)
+
+- **Dashboard**: new orders and requests, revenue for 30 days, low-stock products.
+- **Orders**:
+  - status filter, search by number, name or phone, and a manager note;
+  - the list refreshes by itself every 10 seconds;
+  - cancelling an order returns the items to stock automatically.
+- **Products**: photos, dosage variants with their own price and stock, composition, specs, and texts in three languages.
+- **Certificates, categories and filter options**: all editable in three languages.
+- **Services and requests**: prices for the consultation and the monthly support. Each request has a one-click link to the client's preferred messenger (Viber, WhatsApp or a call).
+- **Pages**: a section-by-section editor for the "What are peptides" page text.
+- **Settings**:
+  - store contacts, delivery cost and the free-delivery threshold;
+  - status checks for the Telegram bot and Gmail, with test buttons.
+
+### Notifications
+
+- **Telegram bot**: every order and consultation request arrives as a structured message: customer, phone, address, items, totals and a link to the order in the admin panel.
+- **Email to the customer**: an order confirmation in the customer's language, sent directly through Gmail SMTP, with no third-party mail service.
+
+## Tech stack
+
+- [Next.js 16](https://nextjs.org) (App Router, Cache Components, Server Actions)
+- TypeScript
+- Tailwind CSS 4: no separate CSS files, all styling is utility classes
+- [Supabase](https://supabase.com): Postgres, Auth, Storage and Row Level Security
+- Nodemailer for Gmail SMTP, and the Telegram Bot API
+- Hosted on Vercel
+
+All store data (products, categories, texts, prices, contacts) lives in the database. The code holds no content.
+The database itself enforces permissions: visitors only read published data, and only users in the `admins` table can change anything.
+
+## Getting started
 
 ```bash
 npm install
+cp .env.example .env.local   # fill in the values, see below
 npm run dev
 ```
 
-Откройте http://localhost:3000. Все данные (товары, категории, сертификаты, контакты) берутся **только из
-Supabase** — в коде их нет. Пока база не подключена, сверху сайта висит красная плашка
-«База данных не подключена», а каталог пуст.
+Open http://localhost:3000. Until Supabase is connected, the site shows a red "database not connected" banner and an empty catalog.
 
-## Подключение Supabase (≈10 минут)
+### 1. Set up Supabase
 
-1. Создайте проект на [supabase.com](https://supabase.com).
-2. **SQL Editor → New query** → вставьте содержимое `supabase/schema.sql` → **Run**.
-   Создадутся таблицы, права доступа (RLS), функция оформления заказа и хранилище `media` для фото и PDF.
-3. По очереди выполните ещё три файла:
-   - `supabase/i18n.sql` — поля для английских и румынских переводов;
-   - `supabase/filters.sql` — варианты фильтров (назначения и формы выпуска), которые потом редактируются в админке;
-   - `supabase/pages.sql` — текст страницы «Что такое пептиды» (правится в Админке → «Страницы»);
-   - `supabase/order-numbers.sql` — номера заказов и заявок вида 0001 (поле code) и счёт с единицы;
-   - `supabase/order-stock.sql` — при отмене заказа товар возвращается на склад;
-   - `supabase/services.sql` — услуги «Консультация» и «Сопровождение» и таблица заявок на них;
-   - `supabase/categories.sql` — категории Agenyz и «Лечебные травы» (на сайте появятся вместе с первым товаром);
-   - `supabase/peptides.sql` — 15 пептидов из прайса с описаниями и ценами в евро;
-   - `supabase/peptides-i18n.sql` — их тексты на английском и румынском.
+Create a project at [supabase.com](https://supabase.com). Then run these files in **SQL Editor**, in order:
 
-   Если в базе остались старые тестовые товары, выполните `supabase/cleanup.sql` — он удалит всё, кроме этих пептидов.
-4. Скопируйте `.env.example` в `.env.local` и вставьте значения из
-   **Project Settings → API** (URL и publishable/anon key).
-5. Создайте администратора:
-   - **Authentication → Users → Add user → Create new user**, укажите email и пароль, включите *Auto Confirm User*;
-   - в SQL Editor выполните (подставьте свой email):
-     ```sql
-     insert into public.admins (user_id)
-     select id from auth.users where email = 'you@example.com';
-     ```
-6. Перезапустите `npm run dev` и войдите на http://localhost:3000/admin.
-
-> Ключ `service_role` **не нужен** и в проект не добавляется. Права проверяет сама база:
-> покупатели видят только опубликованные товары, а менять данные может только пользователь из таблицы `admins`.
-
-## Telegram-бот
-
-Новые заказы и заявки на консультацию приходят в Telegram отдельным сообщением: покупатель, телефон,
-адрес, товары с количеством и ценой, сумма и ссылка на заказ в админке.
-
-1. Создайте бота у @BotFather и вставьте токен в `TELEGRAM_BOT_TOKEN`.
-2. Получатель открывает бота и нажимает «Start» (или добавьте бота в группу).
-3. Админка → Настройки → «Найти чаты» — скопируйте ID в `TELEGRAM_CHAT_ID` (несколько — через запятую).
-4. На Vercel добавьте обе переменные и сделайте Redeploy, затем «Отправить тест» в настройках.
-
-Если Telegram недоступен, заказ всё равно оформляется — сообщение просто не придёт.
-
-## Письма покупателям (Gmail)
-
-Если покупатель указал email, после заказа ему приходит письмо с составом заказа на языке сайта.
-Отправляется напрямую через Gmail, без сторонних сервисов (лимит Google — около 500 писем в день).
-
-1. В аккаунте Google включите двухэтапную аутентификацию.
-2. На myaccount.google.com/apppasswords создайте пароль приложения.
-3. Добавьте `GMAIL_USER` и `GMAIL_APP_PASSWORD` в .env.local и на Vercel, сделайте Redeploy.
-4. Админка → Настройки → «Отправить тестовое письмо».
-
-Пока почта не подключена, под полем Email в оформлении заказа не обещается письмо.
-
-## Языки
-
-Сайт на трёх языках: английский (основной), румынский и русский. **Язык не пишется в адресе** — `/catalog` один для всех, язык хранится в cookie посетителя.
-
-- Переключатель — в шапке (на телефоне — в меню). Выбор запоминается на год.
-- Первый заход: язык браузера (en/ro/ru), иначе английский.
-- Ссылки `/ro`, `/ru`, `/en` (и `/ro/catalog` и т. п.) запоминают язык и ведут на обычный адрес — удобно для рекламы на конкретном языке.
-- Поисковики индексируют английскую версию: робот не выбирает язык и видит сайт на английском.
-- Тексты интерфейса — в `src/i18n/dictionaries/` (`en.ts`, `ro.ts`, `ru.ts`).
-- Тексты товаров, категорий, сертификатов и настроек — в базе. В админке у товара вкладки «Русский · English · Română»; у категорий, сертификатов и настроек — отдельные поля EN/RO. Пустой перевод на сайте заменяется: румынский → английским, английский → русским.
-- Админка — только на русском.
-
-## Страницы
-
-| Адрес | Что это |
+| File | What it does |
 |---|---|
-| `/` | Главная: поиск по номеру партии, категории, популярное, FAQ |
-| `/catalog` | Каталог: категории, фильтры (форма, назначение, цена, наличие), сортировка, поиск `?q=` |
-| `/product/[slug]` | Товар: фото, дозировки, количество, состав, применение, документы |
-| `/certificates` | Реестр сертификатов с поиском по LOT |
-| `/cart`, `/checkout`, `/checkout/success` | Корзина и оформление заказа |
-| `/delivery`, `/contacts`, `/about`, `/privacy` | Информационные страницы |
-| `/admin` | Админка |
+| `supabase/schema.sql` | Tables, RLS policies, `place_order()` function, `media` storage bucket |
+| `supabase/i18n.sql` | Translation columns (English and Romanian) |
+| `supabase/filters.sql` | Editable filter options: purposes and forms |
+| `supabase/services.sql` | Consultation services and the requests table |
+| `supabase/categories.sql` | Agenyz and medicinal herbs categories |
+| `supabase/peptides.sql` | 15 peptides with descriptions and prices in EUR |
+| `supabase/peptides-i18n.sql` | English and Romanian texts for the peptides |
+| `supabase/pages.sql` | Text of the "What are peptides" page |
+| `supabase/order-stock.sql` | Returns items to stock when an order is cancelled |
+| `supabase/order-numbers.sql` | Order and request numbers like `0001` |
 
-## Админка
+Every file is safe to run again.
 
-- **Обзор** — новые заказы, выручка за 30 дней, товары, которые заканчиваются.
-- **Заказы** — фильтр по статусу, поиск по номеру/имени/телефону, смена статуса прямо из списка,
-  карточка заказа с заметкой менеджера.
-- **Товары** — создание и редактирование: фото (загрузка, порядок, главное фото), дозировки с отдельной
-  ценой и остатком, состав, характеристики, метки «Новинка»/«Популярное», публикация в один клик.
-- **Сертификаты** — загрузка PDF, привязка к товару и партии.
-- **Фильтры** — варианты «Назначения» и «Формы выпуска» на трёх языках: добавить, переименовать, поменять порядок, скрыть. Новый вариант сразу появляется в карточке товара (галочкой) и в фильтрах каталога.
-- **Услуги** — консультация и ежемесячное сопровождение: названия, что входит, цена (пусто — «по запросу»), оплата разово или за месяц.
-- **Страницы** — текст страницы «Что такое пептиды» на трёх языках: поля по разделам, пункты списков можно добавлять, удалять и переставлять, у направлений — отмечать товары каталога.
-- **Заявки** — заявки со страницы «Консультация»: имя, телефон, удобный мессенджер (ссылка сразу открывает чат), цель клиента, статус и заметка.
-- **Категории** и **Настройки** (название магазина, телефон, Telegram, адрес, стоимость доставки).
+### 2. Create an admin user
 
-Изменения из админки появляются на сайте сразу (кеш сбрасывается через `updateTag`).
+In **Authentication → Users → Add user**, create a user with *Auto Confirm User* on. Then run in SQL Editor:
 
-## Как устроено
+```sql
+insert into public.admins (user_id)
+select id from auth.users where email = 'you@example.com';
+```
+
+Sign in at http://localhost:3000/admin.
+
+### 3. Environment variables
+
+| Variable | Required | Where to get it |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase → Project Settings → API |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | The publishable (or anon) key from the same page |
+| `TELEGRAM_BOT_TOKEN` | for notifications | [@BotFather](https://t.me/BotFather) |
+| `TELEGRAM_CHAT_ID` | for notifications | Admin → Settings → "Find chats" (comma-separated for several recipients) |
+| `GMAIL_USER` | for customer emails | The Gmail address that sends the emails |
+| `GMAIL_APP_PASSWORD` | for customer emails | [App passwords](https://myaccount.google.com/apppasswords) (2-step verification required) |
+
+The Supabase `service_role` key is **not** used and should never be added.
+
+### Telegram bot
+
+1. Create a bot with @BotFather and set `TELEGRAM_BOT_TOKEN`.
+2. The recipient opens the bot and presses **Start**. You can also add the bot to a group.
+3. In Admin → Settings, press **Find chats** and copy the chat ID into `TELEGRAM_CHAT_ID`.
+4. Press **Send test**.
+
+If Telegram is unavailable, the order is still placed; only the message is skipped.
+
+### Customer emails (Gmail)
+
+1. Turn on 2-step verification in the Google account.
+2. Create an app password and set `GMAIL_USER` and `GMAIL_APP_PASSWORD`.
+3. In Admin → Settings, press **Send test email**.
+
+The checkout only promises an email copy once mail is configured. Gmail allows about 500 emails per day.
+
+## Project structure
 
 ```
 src/
-  app/(shop)/        страницы магазина (общие шапка и подвал)
-  app/admin/         админка: login + (panel) с боковым меню
-  components/        UI магазина; components/admin — формы админки
-  lib/data.ts        чтение каталога из Supabase с кешированием ('use cache')
-  lib/catalog.ts     фильтры, сортировка, пагинация
-  lib/cart.ts        корзина в localStorage
-  lib/admin/         проверка прав и server actions админки
-  proxy.ts           обновление сессии и защита /admin
-supabase/
-  schema.sql         таблицы, RLS, place_order(), хранилище
-  cleanup.sql        удаление старых тестовых данных (всё, кроме пептидов из прайса)
-  filters.sql        таблица вариантов фильтров + стартовые назначения и формы выпуска
-  pages.sql          тексты страниц (пока «Что такое пептиды»)
-  order-numbers.sql  номера вида 0001
-  order-stock.sql    возврат остатка при отмене заказа
-  services.sql       услуги специалиста и заявки на них
-  categories.sql     категории Agenyz и «Лечебные травы»
-  peptides.sql       пептиды из прайса SP Laboratory (цены в евро)
+  app/[lang]/          storefront pages (language comes from a cookie, not the URL)
+  app/admin/           admin panel: login and (panel) pages
+  components/          storefront UI; components/admin: admin forms
+  i18n/                dictionaries (en, ro, ru) and language helpers
+  lib/data.ts          cached reads from Supabase ('use cache' + tags)
+  lib/catalog.ts       filters, sorting, pagination
+  lib/cart.ts          cart in localStorage
+  lib/telegram.ts      Telegram notifications
+  lib/mail.ts          order emails via Gmail
+  lib/admin/           admin auth, server actions, page editor schemas
+  proxy.ts             language detection and /admin protection
+supabase/              SQL for the database (see the table above)
+docs/screenshots/      images for this README
 ```
 
-- Цены в заказе считает база (функция `place_order`), а не браузер — подделать сумму нельзя.
-- Остатки списываются автоматически при оформлении заказа.
-- Цвета взяты из логотипа клиента и заданы в `src/app/globals.css` (`@theme`): тёмно-синий `brand`, сиренево-голубой `accent`, шалфейный `sage`, фоны категорий `periwinkle` / `meadow` / `mist` / `cream`.
-- Логотип: исходники `public/logo.PNG` и `public/logo1.JPG`; на сайте используются вырезанные версии с прозрачным фоном `public/brand/mark.png` (знак), `public/brand/logo.png` (знак с надписью) и иконка вкладки `src/app/icon.png`.
+## Deployment
 
-## Деплой (Vercel)
+The project is deployed on Vercel from the `master` branch:
 
-Импортируйте репозиторий, добавьте переменные из `.env.local` (Supabase, Telegram и Gmail) в **Settings → Environment
-Variables** и задеплойте. Если меняете переменные — сделайте Redeploy: адрес Supabase используется при сборке
-(разрешённые адреса картинок).
+1. Import the repository.
+2. Add the environment variables from `.env.local` in **Settings → Environment Variables**.
+3. Deploy.
 
-## Что поправить перед запуском
+After changing variables, redeploy.
 
-- Тексты на страницах «О магазине», «Доставка», «Политика конфиденциальности» — черновики, отредактируйте под себя.
-- Контакты, название и стоимость доставки меняются в **Админка → Настройки**.
-- Новые товары добавляются в админке: Товары → «Добавить товар».
-- Изменения через админку видны на сайте сразу. Если править таблицы напрямую в Supabase, сайт обновится
-  примерно через минуту, или сразу — кнопкой «Обновить сайт» в Админка → Настройки.
+Changes made in the admin panel appear on the site immediately. Data edited directly in Supabase shows up within a minute, or right away after pressing **Refresh site** in Admin → Settings.
+
+---
+
+Made by SIMP

@@ -81,16 +81,23 @@ async function CatalogView({ searchParams }: Pick<PageProps<'/[lang]/catalog'>, 
         ))}
       </nav>
 
-      <CatalogControls filters={filters} facets={facets} options={options} total={result.total}>
-        {result.items.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 2xl:grid-cols-4">
-              {result.items.map((p) => (
-                <ProductCard key={p.id} product={p} hasDocs={withDocs.has(p.id)} />
-              ))}
-            </div>
+      <CatalogControls
+        filters={filters}
+        facets={facets}
+        options={options}
+        total={result.total}
+        footer={
+          result.items.length > 0 && (
             <Pagination lang={lang} labels={{ pages: t.catalog.pages, next: t.catalog.nextPage }} filters={filters} page={result.page} pages={result.pages} />
-          </>
+          )
+        }
+      >
+        {result.items.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 2xl:grid-cols-4">
+            {result.items.map((p) => (
+              <ProductCard key={p.id} product={p} hasDocs={withDocs.has(p.id)} />
+            ))}
+          </div>
         ) : (
           <div className="rounded-3xl border border-dashed border-line-strong px-6 py-16 text-center">
             <p className="text-xl font-medium">{t.catalog.nothing}</p>
