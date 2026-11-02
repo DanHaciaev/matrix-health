@@ -28,13 +28,20 @@ export const DELIVERY_LABELS: Record<string, string> = {
   pickup: 'Самовывоз',
 }
 
+// Терминала у курьера нет, поэтому картой при получении не платят
 export const PAYMENT_METHODS = [
   { id: 'cash', label: 'Наличными при получении' },
-  { id: 'card', label: 'Картой при получении' },
   { id: 'transfer', label: 'Переводом на карту' },
 ] as const
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]['id']
+
+// Подписи для админки и уведомлений — со старым способом «картой» для прежних заказов
+export const PAYMENT_LABELS: Record<string, string> = {
+  cash: 'Наличными при получении',
+  card: 'Картой при получении',
+  transfer: 'Переводом на карту',
+}
 
 // Заявки на консультацию и сопровождение
 export const REQUEST_STATUSES = [

@@ -5,7 +5,7 @@ import { AdminTitle, Card, StatusBadge } from '@/components/admin/parts'
 import { IconArrowLeft, IconPhone } from '@/components/icons'
 import { btn } from '@/components/ui'
 import { requireAdmin } from '@/lib/admin/auth'
-import { DELIVERY_LABELS, PAYMENT_METHODS } from '@/lib/constants'
+import { DELIVERY_LABELS, PAYMENT_LABELS } from '@/lib/constants'
 import { dateTime, eur, telHref, orderNo } from '@/lib/format'
 import type { Order, OrderItem } from '@/lib/types'
 import { NoteForm } from './note-form'
@@ -25,7 +25,7 @@ export default async function OrderPage(props: PageProps<'/admin/orders/[id]'>) 
     ['Email', order.email ?? '—'],
     ['Доставка', DELIVERY_LABELS[order.delivery_method] ?? order.delivery_method],
     ['Адрес', [order.city, order.address].filter(Boolean).join(', ') || '—'],
-    ['Оплата', PAYMENT_METHODS.find((p) => p.id === order.payment_method)?.label],
+    ['Оплата', PAYMENT_LABELS[order.payment_method] ?? order.payment_method],
   ]
 
   return (

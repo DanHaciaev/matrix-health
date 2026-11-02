@@ -1,6 +1,6 @@
 import 'server-only'
 import { headers } from 'next/headers'
-import { CONTACT_LABELS, PAYMENT_METHODS } from './constants'
+import { CONTACT_LABELS, PAYMENT_LABELS } from './constants'
 import { eur, orderNo } from './format'
 
 // Уведомления в Telegram о новых заказах и заявках.
@@ -90,7 +90,7 @@ export type OrderNotice = {
 export function orderMessage(o: OrderNotice) {
   const subtotal = o.lines.reduce((s, l) => s + l.price * l.qty, 0)
   const c = o.customer
-  const payment = PAYMENT_METHODS.find((p) => p.id === c.payment)?.label
+  const payment = PAYMENT_LABELS[c.payment]
 
   return [
     `🛒 <b>Новый заказ №${orderNo(o.number)}</b>`,

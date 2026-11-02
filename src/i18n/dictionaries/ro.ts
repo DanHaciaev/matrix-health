@@ -107,7 +107,7 @@ const ro: Dictionary = {
         q: 'Cum se păstrează peptidele?',
         a: 'Liofilizatul din flacoane se păstrează la frigider, la +2…+8 °C. Condițiile pentru fiecare produs sunt indicate pe pagina lui.',
       },
-      { q: 'Ce metode de plată există?', a: 'Numerar sau card la livrare, precum și transfer pe card.' },
+      { q: 'Ce metode de plată există?', a: 'Numerar la livrare sau transfer pe card.' },
       {
         q: 'Cât durează livrarea?',
         a: 'Livrăm singuri, cu curierul nostru. După comandă, managerul vă sună pentru a stabili ora potrivită.',
@@ -119,6 +119,7 @@ const ro: Dictionary = {
     consultTitle: 'Nu știți ce să alegeți?',
     consultLead: 'Specialistul în peptide le alege pentru obiectivul dvs., vă spune ce analize să faceți și rămâne în legătură pe toată durata curei.',
     consultCta: 'Programați o consultație',
+    aboutPeptides: 'Mai multe despre peptide',
   },
 
   // Подписи интерфейса страницы /peptides. Сам текст страницы — в базе (таблица pages)
@@ -390,7 +391,6 @@ const ro: Dictionary = {
     paymentTitle: 'Plată',
     payment: [
       'numerar curierului;',
-      'cu cardul la primire (curierul are terminal);',
       'prin transfer pe card după confirmarea comenzii.',
     ],
     returnsTitle: 'Returnare',
@@ -493,7 +493,6 @@ const ro: Dictionary = {
 
   payment: {
     cash: 'Numerar la livrare',
-    card: 'Card la livrare',
     transfer: 'Transfer pe card',
   },
 

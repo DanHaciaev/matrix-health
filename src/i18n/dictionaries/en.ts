@@ -104,7 +104,7 @@ const en = {
         q: 'How should peptides be stored?',
         a: 'Lyophilized powder in vials should be kept refrigerated at +2…+8 °C. Storage conditions for each product are listed on its page.',
       },
-      { q: 'What payment methods are available?', a: 'Cash or card on delivery, or a bank card transfer.' },
+      { q: 'What payment methods are available?', a: 'Cash on delivery or a bank card transfer.' },
       {
         q: 'How long does delivery take?',
         a: 'We deliver orders ourselves, with our own courier. After you order, the manager will call to agree on a convenient time.',
@@ -116,6 +116,7 @@ const en = {
     consultTitle: 'Not sure what to choose?',
     consultLead: 'A peptide specialist will help you choose for your goal, tell you which tests to take and stay in touch throughout the course.',
     consultCta: 'Book a consultation',
+    aboutPeptides: 'More about peptides',
   },
 
   // Подписи интерфейса страницы /peptides. Сам текст страницы — в базе (таблица pages)
@@ -385,7 +386,6 @@ const en = {
     paymentTitle: 'Payment',
     payment: [
       'cash to the courier;',
-      'by card on delivery (the courier has a terminal);',
       'by bank card transfer after the order is confirmed.',
     ],
     returnsTitle: 'Returns',
@@ -482,7 +482,6 @@ const en = {
 
   payment: {
     cash: 'Cash on delivery',
-    card: 'Card on delivery',
     transfer: 'Bank card transfer',
   },
 

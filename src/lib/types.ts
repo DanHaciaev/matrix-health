@@ -1,4 +1,4 @@
-import type { OrderStatus, PaymentMethod, RequestStatus } from './constants'
+import type { OrderStatus, RequestStatus } from './constants'
 
 // Переводы текстов: русский лежит в обычных колонках, английский и румынский — здесь
 export type TranslatedLang = 'en' | 'ro'
@@ -124,7 +124,7 @@ export type Order = {
   delivery_method: string
   city: string | null
   address: string | null
-  payment_method: PaymentMethod
+  payment_method: string
   comment: string | null
   subtotal: number
   delivery_cost: number

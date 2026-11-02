@@ -4,6 +4,7 @@ import { DICTIONARIES } from '@/i18n/dictionaries'
 import { DEFAULT_LANG, hasLocale } from '@/i18n/config'
 import { makeI18n } from '@/i18n'
 import { orderNo } from './format'
+import type { PaymentMethod } from './constants'
 import { MAIL_LOGO_PNG } from './mail-logo'
 
 // Письма покупателям — напрямую через Gmail (SMTP + пароль приложения), без сторонних сервисов.
@@ -57,7 +58,7 @@ export type OrderEmail = {
   number: number
   store: string
   phone: string | null
-  customer: { name: string; city: string; address: string; payment: 'cash' | 'card' | 'transfer'; comment: string }
+  customer: { name: string; city: string; address: string; payment: PaymentMethod; comment: string }
   lines: { name: string; variant: string | null; qty: number; price: number }[]
   delivery: number
 }

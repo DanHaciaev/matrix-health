@@ -1,17 +1,18 @@
 import Link from 'next/link'
 import { IconArrow, IconPhone, IconShield, IconSnow, IconTruck } from '@/components/icons'
-import { LabSheet } from '@/components/lab-sheet'
-import { LotSearch } from '@/components/lot-search'
 import { ProductCard } from '@/components/product-card'
 import { ProductVisual } from '@/components/product-visual'
 import { btn, wrap } from '@/components/ui'
-import { telHref } from '@/lib/format'
-import { getShop, getShopServices } from '@/lib/shop'
+import { getShop, getShopPage, getShopServices } from '@/lib/shop'
 import { tone } from '@/lib/tones'
-import type { Product } from '@/lib/types'
+import type { PeptidesContent, Product } from '@/lib/types'
 
 export default async function HomePage() {
-  const [{ i18n, catalog, settings: s }, services] = await Promise.all([getShop(), getShopServices()])
+  const [{ i18n, catalog, settings: s }, services, about] = await Promise.all([
+    getShop(),
+    getShopServices(),
+    getShopPage<PeptidesContent>('peptides'),
+  ])
   const { t, path, money, plural, fmt } = i18n
   const { products, categories, certificates } = catalog
 
@@ -73,7 +74,9 @@ export default async function HomePage() {
 
               <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/15 pt-6">
                 <Stat value={String(products.length)} label={plural(products.length, t.home.statProducts)} />
-                <Stat value={String(certificates.length)} label={plural(certificates.length, t.home.statDocuments)} />
+                {certificates.length > 0 && (
+                  <Stat value={String(certificates.length)} label={plural(certificates.length, t.home.statDocuments)} />
+                )}
                 <Stat value={t.home.statDeliveryValue} label={t.home.statDeliveryLabel} />
               </dl>
             </div>
@@ -161,6 +164,33 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ——— О пептидах: коротко, текст из страницы /peptides ——— */}
+      {about && (
+        <section className={`${wrap} pt-20 lg:pt-24`}>
+          <div className="grid gap-10 rounded-[32px] bg-surface p-6 ring-1 ring-line sm:p-10 lg:grid-cols-[1fr_1.15fr] lg:items-center lg:gap-16 lg:p-14">
+            <div>
+              <p className="text-sm font-semibold text-brand">{t.nav.peptides}</p>
+              <h2 className="mt-3 text-[clamp(1.9rem,3.6vw,2.75rem)] leading-[1.08] font-bold tracking-[-0.03em] text-balance">{about.whatTitle}</h2>
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-ink-2">{about.whatText}</p>
+              <Link href={path('/peptides')} className={`${btn.primary} mt-8`}>
+                {t.home.aboutPeptides} <IconArrow size={18} />
+              </Link>
+            </div>
+            <ol className="grid gap-3">
+              {about.how.map((step, i) => (
+                <li key={i} className="flex gap-4 rounded-3xl bg-paper p-5 sm:p-6">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">{i + 1}</span>
+                  <span>
+                    <span className="block text-lg font-semibold">{step.title}</span>
+                    <span className="mt-1 block leading-relaxed text-ink-2">{step.text}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )}
+
       {/* ——— Популярное ——— */}
       {popular.length > 0 && (
         <section className={`${wrap} pt-20 lg:pt-24`}>
@@ -180,14 +210,9 @@ export default async function HomePage() {
             <div>
               <h2 className="text-[clamp(1.9rem,3.6vw,2.75rem)] leading-[1.08] font-bold tracking-[-0.03em] text-balance">{t.home.consultTitle}</h2>
               <p className="mt-4 max-w-md text-lg leading-relaxed text-ink-2">{t.home.consultLead}</p>
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Link href={path('/consultation')} className={btn.dark}>
-                  {t.home.consultCta} <IconArrow size={18} />
-                </Link>
-                <Link href={path('/peptides')} className="font-semibold text-cream-ink underline-offset-4 hover:underline">
-                  {t.meta.peptides}
-                </Link>
-              </div>
+              <Link href={path('/consultation')} className={`${btn.dark} mt-8`}>
+                {t.home.consultCta} <IconArrow size={18} />
+              </Link>
             </div>
             <ul className="space-y-3">
               {services.map((sv) => (
@@ -214,69 +239,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* ——— Проверка партии ——— */}
-      <section className={`${wrap} pt-20 lg:pt-24`}>
-        <div className="grid gap-10 overflow-hidden rounded-[32px] bg-meadow px-6 py-10 sm:px-10 sm:py-14 lg:grid-cols-[1.1fr_1fr] lg:gap-16 lg:px-16 lg:py-16">
-          <div>
-            <h2 className="text-[clamp(1.9rem,3.6vw,2.75rem)] leading-[1.08] font-bold tracking-[-0.03em] text-balance">
-              {t.home.verifyTitle}
-            </h2>
-            <p className="mt-4 max-w-md text-lg leading-relaxed text-ink-2">{t.home.verifyLead}</p>
-
-            <ol className="mt-8 space-y-4">
-              {t.home.verifySteps.map((step, i) => (
-                <li key={step} className="flex items-center gap-4 text-[16px] font-medium">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">
-                    {i + 1}
-                  </span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-
-            <div className="mt-8">
-              <LotSearch />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center">
-            <LabSheet cert={heroCert} className="w-full max-w-md" />
-          </div>
-        </div>
-      </section>
-
-      {/* ——— Вопросы ——— */}
-      <section className={`${wrap} grid gap-6 pt-20 lg:grid-cols-[1.5fr_1fr] lg:pt-24`}>
-        <div className="rounded-[32px] bg-surface p-6 ring-1 ring-line sm:p-10">
-          <h2 className="text-3xl font-bold tracking-[-0.025em]">{t.home.faqTitle}</h2>
-          <div className="mt-6">
-            {t.home.faq.map(({ q, a }, i) => (
-              <details key={q} open={i === 0} className="group border-b border-line last:border-0">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
-                  {q}
-                  <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-sand transition-colors group-open:bg-brand before:absolute before:h-[2px] before:w-3 before:rounded-full before:bg-ink group-open:before:bg-white after:absolute after:h-3 after:w-[2px] after:rounded-full after:bg-ink after:transition-transform group-open:after:scale-y-0" />
-                </summary>
-                <p className="max-w-2xl pb-5 text-[15px] leading-relaxed text-ink-2">{a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between rounded-[32px] bg-periwinkle p-6 sm:p-10">
-          <div>
-            <h2 className="text-3xl font-bold tracking-[-0.025em]">{t.home.questionsTitle}</h2>
-            <p className="mt-3 text-[16px] leading-relaxed text-ink-2">{t.home.questionsText}</p>
-          </div>
-          <div className="mt-8 flex flex-col gap-3">
-            {s.phone && (
-              <a href={telHref(s.phone)} className={btn.dark}>
-                <IconPhone size={18} /> {s.phone}
-              </a>
-            )}
-          </div>
-        </div>
-      </section>
     </>
   )
 }

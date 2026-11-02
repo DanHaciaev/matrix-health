@@ -3,7 +3,7 @@
 import { updateTag } from 'next/cache'
 import { after } from 'next/server'
 import type { Dictionary } from '@/i18n/dictionaries'
-import { PAYMENT_METHODS } from '@/lib/constants'
+import { PAYMENT_METHODS, type PaymentMethod } from '@/lib/constants'
 import { DEFAULT_LANG, hasLocale, type Lang } from '@/i18n/config'
 import { CATALOG_TAG, getCatalog, getSettings } from '@/lib/data'
 import { localizeProduct } from '@/lib/localize'
@@ -114,7 +114,7 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
           name: customer.customer_name,
           city: customer.city,
           address: customer.address,
-          payment: customer.payment_method as 'cash' | 'card' | 'transfer',
+          payment: customer.payment_method as PaymentMethod,
           comment: customer.comment,
         },
         lines: linesIn(buyerLang),
