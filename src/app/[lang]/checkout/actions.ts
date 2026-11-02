@@ -1,10 +1,11 @@
 'use server'
 
+import { updateTag } from 'next/cache'
 import { after } from 'next/server'
 import type { Dictionary } from '@/i18n/dictionaries'
 import { PAYMENT_METHODS } from '@/lib/constants'
 import { DEFAULT_LANG, hasLocale, type Lang } from '@/i18n/config'
-import { getCatalog, getSettings } from '@/lib/data'
+import { CATALOG_TAG, getCatalog, getSettings } from '@/lib/data'
 import { localizeProduct } from '@/lib/localize'
 import { mailConfig, mailLogoUrl, orderEmail, sendMail } from '@/lib/mail'
 import { isSupabaseConfigured } from '@/lib/supabase/env'
@@ -76,6 +77,9 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
     if (/телефон/i.test(error.message)) return { error: 'check', fields: { phone: 'phone' } }
     return { error: 'failed' }
   }
+
+  // place_order уменьшил остатки — сбрасываем кеш каталога, чтобы сайт сразу показал новые числа
+  updateTag(CATALOG_TAG)
 
   const row = Array.isArray(data) ? data[0] : data
   const number = Number(row?.order_number)
