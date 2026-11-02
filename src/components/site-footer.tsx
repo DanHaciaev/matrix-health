@@ -48,11 +48,13 @@ export async function SiteFooter() {
       <div className="border-t border-white/10">
         <div className={`${wrap} flex flex-col gap-3 py-6 text-[13px] leading-relaxed text-white/55 md:flex-row md:items-center md:justify-between`}>
           <p className="max-w-2xl">{t.footer.disclaimer}</p>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href={path('/privacy')} className="hover:text-white">
               {t.nav.privacy}
             </Link>
             <span>© {s.store_name}</span>
+            {/* Подпись разработчика — одинаковая на всех языках */}
+            <span>Made by SIMP</span>
           </div>
         </div>
       </div>
