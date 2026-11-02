@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer'
 import { DICTIONARIES } from '@/i18n/dictionaries'
 import { DEFAULT_LANG, hasLocale } from '@/i18n/config'
 import { makeI18n } from '@/i18n'
+import { MAIL_LOGO_PNG } from './mail-logo'
 
 // Письма покупателям — напрямую через Gmail (SMTP + пароль приложения), без сторонних сервисов.
 // Логин и пароль — в переменных окружения (см. .env.example).
@@ -16,7 +17,15 @@ export const mailConfig = { configured: Boolean(USER && PASS), user: USER }
 let transport: ReturnType<typeof nodemailer.createTransport> | null = null
 
 /** Отправляет письмо. Возвращает текст ошибки или null; ничего не бросает, чтобы не мешать заказу. */
-export async function sendMail(msg: { to: string; subject: string; html: string; text: string; fromName: string }) {
+export async function sendMail(msg: {
+  to: string
+  subject: string
+  html: string
+  text: string
+  fromName: string
+  /** Картинки внутри письма (cid:…) — без внешних ссылок, которые почта считает подозрительными */
+  attachments?: { filename: string; content: Buffer; cid: string }[]
+}) {
   if (!mailConfig.configured) return 'Не заданы GMAIL_USER и GMAIL_APP_PASSWORD'
   transport ??= nodemailer.createTransport({ service: 'gmail', auth: { user: USER, pass: PASS } })
   try {
@@ -26,6 +35,7 @@ export async function sendMail(msg: { to: string; subject: string; html: string;
       subject: msg.subject,
       html: msg.html,
       text: msg.text,
+      attachments: msg.attachments,
     })
     return null
   } catch (e) {
@@ -37,14 +47,14 @@ export async function sendMail(msg: { to: string; subject: string; html: string;
 // ——— Письмо о заказе ———
 
 // HTML письма пишется со встроенными стилями: почтовые программы не понимают классы и внешние стили
+const LOGO_CID = 'logo@health-matrix'
+
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 export type OrderEmail = {
   lang: string
   number: number
   store: string
-  /** Полный адрес знака логотипа (https://…/brand/mark.png); почтовые программы не видят относительные ссылки */
-  logoUrl: string | null
   phone: string | null
   customer: { name: string; city: string; address: string; payment: 'cash' | 'card' | 'transfer'; comment: string }
   lines: { name: string; variant: string | null; qty: number; price: number }[]
@@ -86,7 +96,7 @@ export function orderEmail(o: OrderEmail) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;">
         <tr><td style="background:#ffffff;padding:20px 28px;">
           <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-            ${o.logoUrl ? `<td style="padding-right:12px;"><img src="${esc(o.logoUrl)}" width="44" height="40" alt="" style="display:block;border:0;"></td>` : ''}
+            <td style="padding-right:12px;"><img src="cid:${LOGO_CID}" width="44" height="40" alt="" style="display:block;border:0;"></td>
             <td style="font-family:Georgia,'Times New Roman',serif;font-size:21px;letter-spacing:0.04em;text-transform:uppercase;color:#0b2386;">${esc(o.store)}</td>
           </tr></table>
         </td></tr>
@@ -111,8 +121,7 @@ export function orderEmail(o: OrderEmail) {
           </table>
         </td></tr>
         <tr><td style="padding:20px 28px;background:#edf1f9;font-size:13px;color:#6b7392;">
-          ${o.phone ? `<div style="margin-bottom:6px;color:#3a4468;">${esc(fmt(e.questions, { phone: o.phone }))}</div>` : ''}
-          ${e.ignore}
+          ${o.phone ? `<div style="color:#3a4468;">${esc(fmt(e.questions, { phone: o.phone }))}</div>` : ''}
         </td></tr>
       </table>
     </td></tr>
@@ -137,15 +146,13 @@ export function orderEmail(o: OrderEmail) {
     o.customer.comment ? `${e.comment}: ${o.customer.comment}` : '',
     '',
     o.phone ? fmt(e.questions, { phone: o.phone }) : '',
-    e.ignore,
   ]
     .filter((l, i, a) => l !== '' || a[i - 1] !== '')
     .join('\n')
 
-  return { subject, html, text }
+  // Логотип вложен в само письмо и подставляется по cid
+  const attachments = [{ filename: 'logo.png', content: Buffer.from(MAIL_LOGO_PNG, 'base64'), cid: LOGO_CID }]
+
+  return { subject, html, text, attachments }
 }
 
-/** Адрес знака логотипа для письма. С локального сервера картинку получатель не увидит — тогда без неё. */
-export function mailLogoUrl(origin: string | null) {
-  return origin && !/\/\/(localhost|127\.)/.test(origin) ? `${origin}/brand/mark.png` : null
-}

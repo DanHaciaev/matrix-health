@@ -354,7 +354,6 @@ const ro: Dictionary = {
     payment: 'Plata',
     comment: 'Comentariu',
     questions: 'Aveți întrebări? Sunați-ne: {phone}',
-    ignore: 'Dacă nu ați plasat această comandă, ignorați acest email.',
   },
 
   success: {

@@ -8,8 +8,8 @@ import { slugify } from '../format'
 import { MEDIA_BUCKET, isSupabaseConfigured } from '../supabase/env'
 import { createSupabaseServer } from '../supabase/server'
 import { getSettings } from '../data'
-import { mailConfig, mailLogoUrl, orderEmail, sendMail } from '../mail'
-import { recentChats, sendTelegram, siteOrigin, type TelegramChat } from '../telegram'
+import { mailConfig, orderEmail, sendMail } from '../mail'
+import { recentChats, sendTelegram, type TelegramChat } from '../telegram'
 import { requireAdmin } from './auth'
 import { getAdminFilters } from './filters'
 
@@ -480,12 +480,11 @@ export async function sendTelegramTest(): Promise<string | null> {
 export async function sendTestEmail(): Promise<string | null> {
   await requireAdmin()
   if (!mailConfig.configured) return 'Не заданы GMAIL_USER и GMAIL_APP_PASSWORD'
-  const [settings, origin] = await Promise.all([getSettings(), siteOrigin()])
+  const settings = await getSettings()
   const mail = orderEmail({
     lang: 'ru',
     number: 1000,
     store: settings.store_name,
-    logoUrl: mailLogoUrl(origin),
     phone: settings.phone,
     customer: { name: 'Тест', city: 'Кишинёв', address: 'ул. Примерная 1, кв. 1', payment: 'cash', comment: 'Это тестовое письмо' },
     lines: [{ name: 'Пример товара', variant: null, qty: 1, price: 10 }],

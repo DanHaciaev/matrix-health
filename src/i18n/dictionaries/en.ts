@@ -350,7 +350,6 @@ const en = {
     payment: 'Payment',
     comment: 'Comment',
     questions: 'Questions? Call us: {phone}',
-    ignore: 'If you did not place this order, just ignore this email.',
   },
 
   success: {
