@@ -4,7 +4,7 @@ import { StatusSelect } from '@/components/admin/controls'
 import { AdminTitle, Card, Empty } from '@/components/admin/parts'
 import { AdminSkeleton } from '@/components/admin/skeleton'
 import { requireAdmin } from '@/lib/admin/auth'
-import { dateTime, eur } from '@/lib/format'
+import { dateTime, eur, orderNo } from '@/lib/format'
 
 export const metadata = { title: 'Обзор' }
 
@@ -91,7 +91,7 @@ async function Dashboard() {
               {recent.data.map((o) => (
                 <li key={o.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
                   <Link href={`/admin/orders/${o.id}`} className="min-w-0 flex-1 hover:text-brand">
-                    <span className="font-mono text-sm">№{o.number}</span> <span className="font-medium">{o.customer_name}</span>
+                    <span className="font-mono text-sm">№{orderNo(o.number)}</span> <span className="font-medium">{o.customer_name}</span>
                     <span className="block text-sm text-mute">
                       {dateTime(o.created_at)} · {o.phone}
                     </span>

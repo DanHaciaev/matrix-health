@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { IconBox, IconChat, IconClose, IconFile, IconFilter, IconGrid, IconMenu, IconPulse, IconReceipt, IconSettings, IconTag } from '../icons'
+import { IconBox, IconChat, IconClose, IconEdit, IconFile, IconFilter, IconGrid, IconMenu, IconPulse, IconReceipt, IconSettings, IconTag } from '../icons'
 
 const ITEMS = [
   { href: '/admin', label: 'Обзор', icon: IconGrid },
@@ -14,6 +14,7 @@ const ITEMS = [
   { href: '/admin/categories', label: 'Категории', icon: IconTag },
   { href: '/admin/filters', label: 'Фильтры', icon: IconFilter },
   { href: '/admin/services', label: 'Услуги', icon: IconPulse },
+  { href: '/admin/pages', label: 'Страницы', icon: IconEdit },
   { href: '/admin/settings', label: 'Настройки', icon: IconSettings },
 ] as const
 

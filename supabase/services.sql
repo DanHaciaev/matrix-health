@@ -22,7 +22,8 @@ create table if not exists public.services (
 
 create table if not exists public.service_requests (
   id             uuid primary key default gen_random_uuid(),
-  number         bigint generated always as identity (start with 1001) unique,
+  number         bigint generated always as identity (start with 1) unique,
+  code            text generated always as (case when number < 10000 then lpad(number::text, 4, '0') else number::text end) stored,  -- «0001»
   service_id     uuid references public.services (id) on delete set null,
   service_name   text not null,                        -- копия на момент заявки
   price          numeric(10, 2),

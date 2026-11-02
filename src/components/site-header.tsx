@@ -26,6 +26,7 @@ export async function SiteHeader() {
   const mobileNav = [
     { href: path('/catalog'), label: t.nav.allCatalog },
     ...catalog.categories.map((c) => ({ href: path(`/catalog?cat=${c.slug}`), label: c.name })),
+    { href: path('/peptides'), label: t.nav.peptides },
     { href: path('/consultation'), label: t.nav.consultation },
     { href: path('/certificates'), label: t.nav.certificates },
     { href: path('/delivery'), label: t.nav.deliveryFull },

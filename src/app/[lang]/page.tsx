@@ -180,9 +180,14 @@ export default async function HomePage() {
             <div>
               <h2 className="text-[clamp(1.9rem,3.6vw,2.75rem)] leading-[1.08] font-bold tracking-[-0.03em] text-balance">{t.home.consultTitle}</h2>
               <p className="mt-4 max-w-md text-lg leading-relaxed text-ink-2">{t.home.consultLead}</p>
-              <Link href={path('/consultation')} className={`${btn.dark} mt-8`}>
-                {t.home.consultCta} <IconArrow size={18} />
-              </Link>
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Link href={path('/consultation')} className={btn.dark}>
+                  {t.home.consultCta} <IconArrow size={18} />
+                </Link>
+                <Link href={path('/peptides')} className="font-semibold text-cream-ink underline-offset-4 hover:underline">
+                  {t.meta.peptides}
+                </Link>
+              </div>
             </div>
             <ul className="space-y-3">
               {services.map((sv) => (

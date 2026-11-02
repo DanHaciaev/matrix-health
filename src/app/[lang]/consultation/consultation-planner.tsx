@@ -5,6 +5,7 @@ import { startTransition, useActionState, useRef, useState } from 'react'
 import { IconArrow, IconCheck } from '@/components/icons'
 import { btn, input, label, textarea } from '@/components/ui'
 import { useI18n } from '@/i18n/client'
+import { orderNo } from '@/lib/format'
 import { CONTACT_METHODS } from '@/lib/constants'
 import type { Service } from '@/lib/types'
 import { requestService, type RequestState } from './actions'
@@ -161,7 +162,7 @@ function RequestForm({
         </span>
         <p className="mt-5 text-2xl font-bold tracking-[-0.02em]">{c.successTitle}</p>
         <p className="mt-2 max-w-md leading-relaxed text-ink-2">
-          {fmt(c.successText, { n: state.number ?? '', hours: hours ? ` (${hours})` : '' })}
+          {fmt(c.successText, { n: state.number ? orderNo(state.number) : '', hours: hours ? ` (${hours})` : '' })}
         </p>
         <button type="button" onClick={onAgain} className={`${btn.outline} mt-7 bg-white/60`}>
           {c.another}

@@ -16,6 +16,8 @@ const ro: Dictionary = {
     privacy: 'Politica de confidențialitate',
     productNotFound: 'Produsul nu a fost găsit',
     consultation: 'Consultație despre peptide',
+    peptides: 'Ce sunt peptidele',
+    peptidesDescription: 'Ce sunt peptidele, cum funcționează, cum se folosesc și ce este important de știut înainte de a începe o cură.',
     consultationDescription: 'Specialistul vă ajută să alegeți peptidele, vă spune ce analize să faceți și vă însoțește pe durata curei.',
   },
 
@@ -34,6 +36,7 @@ const ro: Dictionary = {
     breadcrumbs: 'Navigare',
     categories: 'Categorii',
     consultation: 'Consultație',
+    peptides: 'Despre peptide',
   },
 
   header: {
@@ -116,6 +119,14 @@ const ro: Dictionary = {
     consultTitle: 'Nu știți ce să alegeți?',
     consultLead: 'Specialistul în peptide le alege pentru obiectivul dvs., vă spune ce analize să faceți și rămâne în legătură pe toată durata curei.',
     consultCta: 'Programați o consultație',
+  },
+
+  // Подписи интерфейса страницы /peptides. Сам текст страницы — в базе (таблица pages)
+  peptidesPage: {
+    inCatalog: 'În catalog:',
+    checkCertificates: 'Verificați certificatul lotului →',
+    ctaConsult: 'Programați o consultație',
+    ctaCatalog: 'Vezi peptidele',
   },
 
   consultation: {

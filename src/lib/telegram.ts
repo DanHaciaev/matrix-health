@@ -1,7 +1,7 @@
 import 'server-only'
 import { headers } from 'next/headers'
 import { CONTACT_LABELS, PAYMENT_METHODS } from './constants'
-import { eur } from './format'
+import { eur, orderNo } from './format'
 
 // Уведомления в Telegram о новых заказах и заявках.
 // Токен бота и получатели — в переменных окружения (см. .env.example), в базе их нет.
@@ -93,7 +93,7 @@ export function orderMessage(o: OrderNotice) {
   const payment = PAYMENT_METHODS.find((p) => p.id === c.payment)?.label
 
   return [
-    `🛒 <b>Новый заказ №${o.number}</b>`,
+    `🛒 <b>Новый заказ №${orderNo(o.number)}</b>`,
     block(
       '👤 <b>Покупатель</b>',
       line('Имя', c.name),
@@ -138,7 +138,7 @@ export function requestMessage(r: RequestNotice) {
   const c = r.customer
 
   return [
-    `🩺 <b>Заявка на консультацию №${r.number}</b>`,
+    `🩺 <b>Заявка на консультацию №${orderNo(r.number)}</b>`,
     s && block('📋 <b>Услуга</b>', `${esc(s.name)} — ${price}`),
     block(
       '👤 <b>Клиент</b>',

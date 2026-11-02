@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer'
 import { DICTIONARIES } from '@/i18n/dictionaries'
 import { DEFAULT_LANG, hasLocale } from '@/i18n/config'
 import { makeI18n } from '@/i18n'
+import { orderNo } from './format'
 import { MAIL_LOGO_PNG } from './mail-logo'
 
 // Письма покупателям — напрямую через Gmail (SMTP + пароль приложения), без сторонних сервисов.
@@ -70,7 +71,7 @@ export function orderEmail(o: OrderEmail) {
   const address = [o.customer.city, o.customer.address].filter(Boolean).join(', ')
   const payment = t.payment[o.customer.payment]
 
-  const subject = fmt(e.subject, { n: o.number, store: o.store })
+  const subject = fmt(e.subject, { n: orderNo(o.number), store: o.store })
 
   const rows = o.lines
     .map(
@@ -100,7 +101,7 @@ export function orderEmail(o: OrderEmail) {
             <td style="font-family:Georgia,'Times New Roman',serif;font-size:21px;letter-spacing:0.04em;text-transform:uppercase;color:#0b2386;">${esc(o.store)}</td>
           </tr></table>
         </td></tr>
-        <tr><td style="background:#0b2386;padding:18px 28px;color:#ffffff;font-size:22px;font-weight:700;">${fmt(e.order, { n: o.number })}</td></tr>
+        <tr><td style="background:#0b2386;padding:18px 28px;color:#ffffff;font-size:22px;font-weight:700;">${fmt(e.order, { n: orderNo(o.number) })}</td></tr>
         <tr><td style="padding:28px;">
           <p style="margin:0 0 6px;font-size:17px;font-weight:600;color:#0f1a44;">${esc(fmt(e.greeting, { name: o.customer.name }))}</p>
           <p style="margin:0 0 24px;color:#3a4468;">${e.intro}</p>
@@ -134,7 +135,7 @@ export function orderEmail(o: OrderEmail) {
     fmt(e.greeting, { name: o.customer.name }),
     e.intro,
     '',
-    fmt(e.order, { n: o.number }),
+    fmt(e.order, { n: orderNo(o.number) }),
     ...o.lines.map((l) => `— ${l.name}${l.variant ? ` (${l.variant})` : ''}: ${fmt(e.qty, { n: l.qty })} × ${money(l.price)} = ${money(l.price * l.qty)}`),
     '',
     `${e.products}: ${money(subtotal)}`,

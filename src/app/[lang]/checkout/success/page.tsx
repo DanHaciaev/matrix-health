@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { IconCheck } from '@/components/icons'
 import { btn, wrap } from '@/components/ui'
 import { getI18n } from '@/i18n/server'
-import { telHref } from '@/lib/format'
+import { telHref, orderNo } from '@/lib/format'
 import { getShop } from '@/lib/shop'
 import { ClearCart } from './clear-cart'
 
@@ -55,7 +55,7 @@ async function OrderNumber({
   if (!number) return null
   return (
     <p className="mt-3 text-lg">
-      {label} <span className="font-mono font-medium">№ {number}</span>
+      {label} <span className="font-mono font-medium">№ {orderNo(number)}</span>
     </p>
   )
 }

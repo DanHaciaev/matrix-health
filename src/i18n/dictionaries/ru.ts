@@ -15,6 +15,8 @@ const ru: Dictionary = {
     privacy: 'Политика конфиденциальности',
     productNotFound: 'Товар не найден',
     consultation: 'Консультация по пептидам',
+    peptides: 'Что такое пептиды',
+    peptidesDescription: 'Что такое пептиды, как они работают, как их применяют и что важно знать до начала курса.',
     consultationDescription: 'Специалист поможет подобрать пептиды, подскажет, какие анализы сдать, и сопроводит курс.',
   },
 
@@ -33,6 +35,7 @@ const ru: Dictionary = {
     breadcrumbs: 'Навигация',
     categories: 'Категории',
     consultation: 'Консультация',
+    peptides: 'О пептидах',
   },
 
   header: {
@@ -111,6 +114,14 @@ const ru: Dictionary = {
     consultTitle: 'Не знаете, что выбрать?',
     consultLead: 'Специалист по пептидам подберёт их под вашу цель, подскажет, какие анализы сдать, и будет на связи весь курс.',
     consultCta: 'Записаться на консультацию',
+  },
+
+  // Подписи интерфейса страницы /peptides. Сам текст страницы — в базе (таблица pages)
+  peptidesPage: {
+    inCatalog: 'В каталоге:',
+    checkCertificates: 'Проверить сертификат партии →',
+    ctaConsult: 'Записаться на консультацию',
+    ctaCatalog: 'Смотреть пептиды',
   },
 
   consultation: {

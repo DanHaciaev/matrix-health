@@ -185,3 +185,42 @@ export type Catalog = {
   certificates: Certificate[]
   filters: FilterOption[]
 }
+
+/** Страница с текстом из таблицы pages: русский — в content, переводы — в translations */
+export type Page<T = Record<string, unknown>> = {
+  slug: string
+  title: string
+  content: T
+  translations?: Partial<Record<TranslatedLang, unknown>>
+  updated_at?: string
+}
+
+export type TextItem = { title: string; text: string }
+
+/** Текст страницы «Что такое пептиды» (/peptides) */
+export type PeptidesContent = {
+  titleStart: string
+  titleAccent: string
+  lead: string
+  whatTitle: string
+  whatText: string
+  peptide: string
+  peptideText: string
+  protein: string
+  proteinText: string
+  howTitle: string
+  how: TextItem[]
+  areasTitle: string
+  areasNote: string
+  /** products — адреса товаров каталога, общие для всех языков */
+  areas: (TextItem & { products?: string[] })[]
+  useTitle: string
+  use: TextItem[]
+  safetyTitle: string
+  safety: TextItem[]
+  faqTitle: string
+  faq: { q: string; a: string }[]
+  ctaTitle: string
+  ctaText: string
+  disclaimer: string
+}

@@ -1,5 +1,5 @@
 import type { Lang } from '@/i18n/config'
-import type { Catalog, Category, Certificate, FilterOption, Product, Service, Settings, Translations } from './types'
+import type { Catalog, Category, Certificate, FilterOption, Page, Product, Service, Settings, Translations } from './types'
 
 // Подставляет перевод текста. Русский — в обычных колонках таблицы.
 // Если перевода на нужный язык нет: румынский → английский → русский, английский → русский.
@@ -68,6 +68,19 @@ export function localizeFilter(f: FilterOption, lang: Lang): FilterOption {
 
 export function localizeService(s: Service, lang: Lang): Service {
   return translate(s, s.translations, lang, ['name', 'summary', 'features'])
+}
+
+/** Перевод вложенного текста (страницы): каждая строка берётся из перевода, если она там заполнена */
+function translateDeep(base: unknown, chain: unknown[]): unknown {
+  const at = (key: string | number) => chain.map((t) => (t && typeof t === 'object' ? (t as Record<string | number, unknown>)[key] : undefined))
+  if (typeof base === 'string') return (chain.find((t) => typeof t === 'string' && t.trim() !== '') as string | undefined) ?? base
+  if (Array.isArray(base)) return base.map((item, i) => translateDeep(item, at(i)))
+  if (base && typeof base === 'object') return Object.fromEntries(Object.entries(base).map(([k, v]) => [k, translateDeep(v, at(k))]))
+  return base
+}
+
+export function localizePage<T>(page: Page<T>, lang: Lang): T {
+  return translateDeep(page.content, FALLBACK[lang].map((l) => page.translations?.[l])) as T
 }
 
 export function localizeCatalog(c: Catalog, lang: Lang): Catalog {

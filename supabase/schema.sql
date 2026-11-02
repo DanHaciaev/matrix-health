@@ -81,7 +81,8 @@ create index if not exists certificates_product_idx on public.certificates (prod
 
 create table if not exists public.orders (
   id              uuid primary key default gen_random_uuid(),
-  number          bigint generated always as identity (start with 1001) unique,
+  number          bigint generated always as identity (start with 1) unique,
+  code            text generated always as (case when number < 10000 then lpad(number::text, 4, '0') else number::text end) stored,  -- «0001»
   status          text not null default 'new'
                   check (status in ('new', 'confirmed', 'shipped', 'done', 'cancelled')),
   customer_name   text not null,

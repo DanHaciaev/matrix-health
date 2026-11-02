@@ -3,7 +3,7 @@
 import { refresh, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { DOC_TYPES, ORDER_STATUSES, REQUEST_STATUSES } from '../constants'
-import { CATALOG_TAG, SERVICES_TAG, SETTINGS_TAG } from '../data'
+import { CATALOG_TAG, PAGES_TAG, SERVICES_TAG, SETTINGS_TAG } from '../data'
 import { slugify } from '../format'
 import { MEDIA_BUCKET, isSupabaseConfigured } from '../supabase/env'
 import { createSupabaseServer } from '../supabase/server'
@@ -454,6 +454,24 @@ export async function saveOrderNote(_prev: FormState, fd: FormData): Promise<For
   return { ok: true, message: 'Заметка сохранена' }
 }
 
+// ——— Страницы с текстом (таблица pages) ———
+
+const isObject = (v: unknown): v is Record<string, unknown> => Boolean(v) && typeof v === 'object' && !Array.isArray(v)
+
+/** Сохраняет текст страницы. Возвращает текст ошибки или null. */
+export async function savePage(slug: string, content: unknown, translations: unknown): Promise<string | null> {
+  const { sb } = await requireAdmin()
+  if (!isObject(content) || !isObject(translations)) return 'Неверные данные страницы'
+
+  const { error, count } = await sb.from('pages').update({ content, translations }, { count: 'exact' }).eq('slug', slug)
+  if (error) return /does not exist|schema cache/i.test(error.message) ? 'В базе нет таблицы pages. Выполните supabase/pages.sql в Supabase → SQL Editor.' : dbError(error.message)
+  if (!count) return 'Страница не найдена в базе'
+
+  updateTag(PAGES_TAG)
+  refresh()
+  return null
+}
+
 // ——— Telegram-бот ———
 
 /** Чаты, которые недавно писали боту, — чтобы узнать chat id получателя */
@@ -501,6 +519,7 @@ export async function refreshSite() {
   updateTag(CATALOG_TAG)
   updateTag(SETTINGS_TAG)
   updateTag(SERVICES_TAG)
+  updateTag(PAGES_TAG)
   refresh()
 }
 

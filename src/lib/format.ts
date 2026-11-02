@@ -57,3 +57,8 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, '')
     .slice(0, 80)
 }
+
+/** Номер заказа или заявки для показа: 1 → «0001». В базе хранится обычным числом. */
+export function orderNo(n: number | string) {
+  return String(n).padStart(4, '0')
+}

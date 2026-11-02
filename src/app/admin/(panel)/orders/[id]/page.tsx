@@ -6,7 +6,7 @@ import { IconArrowLeft, IconPhone } from '@/components/icons'
 import { btn } from '@/components/ui'
 import { requireAdmin } from '@/lib/admin/auth'
 import { DELIVERY_LABELS, PAYMENT_METHODS } from '@/lib/constants'
-import { dateTime, eur, telHref } from '@/lib/format'
+import { dateTime, eur, telHref, orderNo } from '@/lib/format'
 import type { Order, OrderItem } from '@/lib/types'
 import { NoteForm } from './note-form'
 
@@ -34,7 +34,7 @@ export default async function OrderPage(props: PageProps<'/admin/orders/[id]'>) 
         <IconArrowLeft size={16} /> Все заказы
       </Link>
       <AdminTitle
-        title={`Заказ №${order.number}`}
+        title={`Заказ №${orderNo(order.number)}`}
         sub={
           <span className="flex flex-wrap items-center gap-2">
             {dateTime(order.created_at)} <StatusBadge status={order.status} />

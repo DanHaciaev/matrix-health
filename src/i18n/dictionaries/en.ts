@@ -18,6 +18,8 @@ const en = {
     privacy: 'Privacy policy',
     productNotFound: 'Product not found',
     consultation: 'Peptide consultation',
+    peptides: 'What are peptides',
+    peptidesDescription: 'What peptides are, how they work, how they are used and what is important to know before starting a course.',
     consultationDescription: 'A specialist will help you choose peptides, tell you which tests to take and guide you through the course.',
   },
 
@@ -36,6 +38,7 @@ const en = {
     breadcrumbs: 'Breadcrumbs',
     categories: 'Categories',
     consultation: 'Consultation',
+    peptides: 'About peptides',
   },
 
   header: {
@@ -113,6 +116,14 @@ const en = {
     consultTitle: 'Not sure what to choose?',
     consultLead: 'A peptide specialist will help you choose for your goal, tell you which tests to take and stay in touch throughout the course.',
     consultCta: 'Book a consultation',
+  },
+
+  // Подписи интерфейса страницы /peptides. Сам текст страницы — в базе (таблица pages)
+  peptidesPage: {
+    inCatalog: 'In the catalog:',
+    checkCertificates: 'Check a batch certificate →',
+    ctaConsult: 'Book a consultation',
+    ctaCatalog: 'View peptides',
   },
 
   consultation: {

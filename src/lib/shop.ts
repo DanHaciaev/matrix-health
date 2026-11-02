@@ -1,7 +1,8 @@
 import 'server-only'
 import { getI18n } from '@/i18n/server'
-import { getCatalog, getProduct, getServices, getSettings } from './data'
-import { localizeCatalog, localizeCertificate, localizeProduct, localizeService, localizeSettings } from './localize'
+import { getCatalog, getPage, getProduct, getServices, getSettings } from './data'
+import { localizeCatalog, localizeCertificate, localizePage, localizeProduct, localizeService, localizeSettings } from './localize'
+import type { Page } from './types'
 
 // Данные магазина на языке текущей страницы (/en, /ro, /ru).
 // Сами запросы к базе кешируются один раз на все языки, перевод подставляется уже после.
@@ -20,6 +21,12 @@ export async function getShop() {
 export async function getShopServices() {
   const [i18n, services] = await Promise.all([getI18n(), getServices()])
   return services.map((s) => localizeService(s, i18n.lang))
+}
+
+/** Текст страницы на языке посетителя или null, если страницы нет в базе */
+export async function getShopPage<T>(slug: string): Promise<T | null> {
+  const [i18n, page] = await Promise.all([getI18n(), getPage(slug)])
+  return page ? localizePage(page as Page<T>, i18n.lang) : null
 }
 
 export async function getShopProduct(slug: string) {

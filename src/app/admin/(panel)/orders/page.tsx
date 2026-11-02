@@ -5,7 +5,7 @@ import { AdminTitle, Empty } from '@/components/admin/parts'
 import { IconSearch } from '@/components/icons'
 import { requireAdmin } from '@/lib/admin/auth'
 import { DELIVERY_LABELS, ORDER_STATUSES } from '@/lib/constants'
-import { dateTime, eur } from '@/lib/format'
+import { dateTime, eur, orderNo } from '@/lib/format'
 
 export const metadata = { title: 'Заказы' }
 
@@ -28,7 +28,7 @@ export default async function OrdersPage(props: PageProps<'/admin/orders'>) {
   if (q) {
     const safe = q.replace(/[,()%]/g, ' ')
     query = /^\d+$/.test(safe)
-      ? query.or(`number.eq.${safe},phone.ilike.%${safe}%`)
+      ? query.or(`number.eq.${Number(safe)},phone.ilike.%${safe}%`)
       : query.or(`customer_name.ilike.%${safe}%,phone.ilike.%${safe}%`)
   }
 
@@ -97,7 +97,7 @@ export default async function OrdersPage(props: PageProps<'/admin/orders'>) {
                 <tr key={o.id} className={`hover:bg-paper ${o.status === 'new' ? 'bg-signal-soft/30' : ''}`}>
                   <td className="px-4 py-3">
                     <Link href={`/admin/orders/${o.id}`} className="font-mono font-medium text-brand hover:underline">
-                      {o.number}
+                      {orderNo(o.number)}
                     </Link>
                   </td>
                   <td className="px-4 py-3">
