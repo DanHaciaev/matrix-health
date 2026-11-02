@@ -93,6 +93,7 @@ export async function ProductCard({ product, hasDocs }: { product: Product; hasD
                   form: product.form,
                   tone: product.category?.sort ?? null,
                   pack: product.pack,
+                  stock: product.variants[0]?.stock ?? product.stock,
                 }}
               />
             ))}

@@ -1,15 +1,21 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { IconMinus, IconPlus, IconTrash } from '@/components/icons'
 import { ProductVisual } from '@/components/product-visual'
 import { btn } from '@/components/ui'
-import { cart, useCart } from '@/lib/cart'
+import { cart, maxQty, useCart } from '@/lib/cart'
 import { useI18n } from '@/i18n/client'
 
-export function CartView({ deliveryCost, freeFrom }: { deliveryCost: number; freeFrom: number }) {
+export function CartView({ deliveryCost, freeFrom, stock }: { deliveryCost: number; freeFrom: number; stock: Record<string, number> }) {
   const { items, count, subtotal } = useCart()
   const { t, path, money, plural, fmt } = useI18n()
+
+  // Подтягиваем свежие остатки: лишнее количество уменьшается до того, что есть на складе
+  useEffect(() => {
+    cart.syncStock(stock)
+  }, [stock, items.length])
 
   if (items.length === 0) {
     return (
@@ -23,6 +29,7 @@ export function CartView({ deliveryCost, freeFrom }: { deliveryCost: number; fre
     )
   }
 
+  const outOfStock = items.some((l) => maxQty(l) === 0)
   const left = Math.max(0, freeFrom - subtotal)
   const delivery = left > 0 ? deliveryCost : 0
 
@@ -58,8 +65,9 @@ export function CartView({ deliveryCost, freeFrom }: { deliveryCost: number; fre
                     <button
                       type="button"
                       onClick={() => cart.setQty(l.key, l.qty + 1)}
+                      disabled={l.qty >= maxQty(l)}
                       aria-label={t.cart.more}
-                      className="flex h-full w-9 items-center justify-center"
+                      className="flex h-full w-9 items-center justify-center disabled:text-line-strong"
                     >
                       <IconPlus size={14} />
                     </button>
@@ -72,6 +80,11 @@ export function CartView({ deliveryCost, freeFrom }: { deliveryCost: number; fre
                     <IconTrash size={16} /> <span className="hidden sm:inline">{t.cart.remove}</span>
                   </button>
                 </div>
+                {maxQty(l) === 0 ? (
+                  <p className="mt-2 text-sm text-signal">{t.cart.outOfStock}</p>
+                ) : (
+                  l.qty >= maxQty(l) && l.stock !== undefined && <p className="mt-2 text-sm text-mute">{fmt(t.cart.stockLimit, { n: maxQty(l) })}</p>
+                )}
               </div>
 
               <p className="col-start-2 text-lg font-semibold tabular-nums sm:col-start-auto sm:text-right">{money(l.price * l.qty)}</p>
@@ -117,9 +130,13 @@ export function CartView({ deliveryCost, freeFrom }: { deliveryCost: number; fre
           <span className="text-2xl font-semibold tabular-nums">{money(subtotal + delivery)}</span>
         </div>
 
-        <Link href={path('/checkout')} className={`${btn.primary} mt-6 w-full`}>
-          {t.cart.checkout}
-        </Link>
+        {outOfStock ? (
+          <p className="mt-6 rounded-2xl bg-sand px-4 py-3 text-sm text-signal">{t.cart.fixStock}</p>
+        ) : (
+          <Link href={path('/checkout')} className={`${btn.primary} mt-6 w-full`}>
+            {t.cart.checkout}
+          </Link>
+        )}
         <Link href={path('/catalog')} className="mt-3 block text-center text-sm text-ink-2 hover:text-ink">
           {t.cart.continue}
         </Link>

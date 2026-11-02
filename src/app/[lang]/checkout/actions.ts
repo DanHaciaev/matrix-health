@@ -72,6 +72,7 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
   if (error) {
     // Тексты ошибок place_order — на русском; переводим известные в коды
     if (/недоступ/i.test(error.message)) return { error: 'unavailable' }
+    if (/Недостаточно/i.test(error.message)) return { error: 'stock' }
     if (/Корзина/i.test(error.message)) return { error: 'cartEmpty' }
     if (/имя/i.test(error.message)) return { error: 'check', fields: { customer_name: 'name' } }
     if (/телефон/i.test(error.message)) return { error: 'check', fields: { phone: 'phone' } }

@@ -207,6 +207,7 @@ const en = {
     added: 'Added',
     goToCart: 'Go to cart',
     notAvailable: 'Out of stock',
+    allInCart: 'All available stock is in your cart',
     noBatch: 'No batch',
     fileOnRequest: 'File on request',
   },
@@ -302,6 +303,9 @@ const en = {
     total: 'Total',
     checkout: 'Checkout',
     continue: 'Continue shopping',
+    stockLimit: 'Only {n} in stock',
+    outOfStock: 'Out of stock — remove it from the cart',
+    fixStock: 'Remove out-of-stock items from the cart',
   },
 
   checkout: {
@@ -343,6 +347,7 @@ const en = {
       notConnected: 'The database is not connected — the order cannot be saved. Call us and we will take it by phone.',
       failed: 'We could not place the order. Call us and we will take it by phone.',
       unavailable: 'One of the products is no longer available. Remove it from the cart and try again.',
+      stock: 'There is less in stock than in your cart. Open the cart, the quantity has been adjusted.',
     },
     courierNote: 'Your order will be delivered by our courier. The manager will call to agree on a convenient time.',
   },

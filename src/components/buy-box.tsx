@@ -94,6 +94,7 @@ export function BuyBox({ product }: { product: Product }) {
             form: product.form,
             tone: product.category?.sort ?? null,
             pack: product.pack,
+            stock,
           }}
         />
       </div>

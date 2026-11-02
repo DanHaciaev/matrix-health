@@ -18,8 +18,13 @@ export type CartLine = {
   /** Цвет этикетки на картинке (порядок категории) и фасовка — только для отрисовки */
   tone?: number | null
   pack?: string | null
+  /** Остаток на складе — больше этого в корзину не положить. На странице корзины обновляется из базы */
+  stock?: number
   qty: number
 }
+
+/** Сколько штук можно положить в корзину */
+export const maxQty = (l: Pick<CartLine, 'stock'>) => Math.max(0, Math.min(99, l.stock ?? 99))
 
 const STORAGE_KEY = 'hm-cart-v1'
 const EMPTY: CartLine[] = []
@@ -77,12 +82,26 @@ export const cart = {
     const existing = lines.find((l) => l.key === key)
     write(
       existing
-        ? lines.map((l) => (l.key === key ? { ...l, ...line, qty: Math.min(99, l.qty + qty) } : l))
-        : [...lines, { ...line, key, qty: Math.min(99, qty) }],
+        ? lines.map((l) => (l.key === key ? { ...l, ...line, qty: Math.min(maxQty(line), l.qty + qty) } : l))
+        : [...lines, { ...line, key, qty: Math.min(maxQty(line), qty) }],
     )
   },
   setQty(key: string, qty: number) {
-    write(lines.map((l) => (l.key === key ? { ...l, qty: Math.max(1, Math.min(99, qty)) } : l)))
+    write(lines.map((l) => (l.key === key ? { ...l, qty: Math.max(1, Math.min(maxQty(l), qty)) } : l)))
+  },
+  /** Свежие остатки из базы: количество уменьшается до остатка (но не ниже 1 — товар без остатка покупатель удалит сам) */
+  syncStock(stock: Record<string, number>) {
+    if (!loaded) read()
+    let changed = false
+    const next = lines.map((l) => {
+      if (!(l.key in stock)) return l
+      const s = stock[l.key]
+      const qty = Math.max(1, Math.min(l.qty, s))
+      if (s === l.stock && qty === l.qty) return l
+      changed = true
+      return { ...l, stock: s, qty }
+    })
+    if (changed) write(next)
   },
   remove(key: string) {
     write(lines.filter((l) => l.key !== key))

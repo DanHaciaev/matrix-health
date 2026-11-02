@@ -210,6 +210,7 @@ const ro: Dictionary = {
     added: 'Adăugat',
     goToCart: 'Spre coș',
     notAvailable: 'Stoc epuizat',
+    allInCart: 'Tot stocul disponibil e deja în coș',
     noBatch: 'Fără lot',
     fileOnRequest: 'Fișier la cerere',
   },
@@ -306,6 +307,9 @@ const ro: Dictionary = {
     total: 'Total',
     checkout: 'Finalizează comanda',
     continue: 'Continuă cumpărăturile',
+    stockLimit: 'În stoc doar {n} buc.',
+    outOfStock: 'Stoc epuizat — eliminați din coș',
+    fixStock: 'Eliminați din coș produsele care nu sunt în stoc',
   },
 
   checkout: {
@@ -347,6 +351,7 @@ const ro: Dictionary = {
       notConnected: 'Baza de date nu este conectată — comanda nu poate fi salvată. Sunați-ne și o preluăm la telefon.',
       failed: 'Comanda nu a putut fi plasată. Sunați-ne și o preluăm la telefon.',
       unavailable: 'Unul dintre produse nu mai este disponibil. Eliminați-l din coș și încercați din nou.',
+      stock: 'În stoc sunt mai puține produse decât în coș. Deschideți coșul, cantitatea a fost ajustată.',
     },
     courierNote: 'Comanda vă va fi adusă de curierul nostru. Managerul vă sună pentru a stabili ora potrivită.',
   },

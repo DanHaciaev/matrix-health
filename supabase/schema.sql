@@ -307,10 +307,12 @@ begin
   for v_item in select value from jsonb_array_elements(p_items) loop
     v_qty := greatest(1, least(99, coalesce((v_item ->> 'qty')::int, 1)));
 
-    select id, name, price, is_published
+    -- for update: два одновременных заказа не купят один и тот же последний товар
+    select id, name, price, stock, is_published
       into v_product
       from public.products
-     where id = (v_item ->> 'product_id')::uuid;
+     where id = (v_item ->> 'product_id')::uuid
+       for update;
 
     if not found or not v_product.is_published then
       raise exception 'Один из товаров больше недоступен';
@@ -320,14 +322,18 @@ begin
     v_label := null;
 
     if coalesce(v_item ->> 'variant_id', '') <> '' then
-      select id, label, price
+      select id, label, price, stock
         into v_variant
         from public.product_variants
        where id = (v_item ->> 'variant_id')::uuid
-         and product_id = v_product.id;
+         and product_id = v_product.id
+         for update;
 
       if not found then
         raise exception 'Вариант товара «%» больше недоступен', v_product.name;
+      end if;
+      if v_variant.stock < v_qty then
+        raise exception 'Недостаточно товара «% %»: в наличии %', v_product.name, v_variant.label, v_variant.stock;
       end if;
 
       v_price := v_variant.price;
@@ -337,6 +343,10 @@ begin
          set stock = greatest(0, stock - v_qty)
        where id = v_variant.id;
     else
+      if v_product.stock < v_qty then
+        raise exception 'Недостаточно товара «%»: в наличии %', v_product.name, v_product.stock;
+      end if;
+
       update public.products
          set stock = greatest(0, stock - v_qty)
        where id = v_product.id;
